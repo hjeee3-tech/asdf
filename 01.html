@@ -1,0 +1,182 @@
+import React, { useState } from 'react';
+import { BookOpen, Anchor, Shield, Flag, AlertTriangle, ChevronDown, ChevronUp, MapPin, Globe } from 'lucide-react';
+
+const Timeline = () => {
+  const [activeEra, setActiveEra] = useState<string | null>('all');
+
+  const historyData = [
+    {
+      id: 'era1',
+      eraTitle: '15세기 ~ 17세기',
+      eraSubtitle: '조선 전기 ~ 중기: 우리 영토임이 기록되다',
+      color: 'blue',
+      events: [
+        { year: '1454', title: '세종실록지리지', desc: '우산(독도)과 무릉(울릉도)이 강원도 울진현에 속한다고 기록함.', icon: <BookOpen className="w-5 h-5" /> },
+        { year: '1531', title: '신증동국여지승람', desc: '독도가 우리 영토임을 밝히는 관찬 지리지가 편찬됨.', icon: <BookOpen className="w-5 h-5" /> },
+        { year: '1667', title: '은주시청합기 (일본 문헌)', desc: '울릉도와 독도가 일본 영토 밖(조선 땅)임을 기록한 일본의 보고서.', icon: <BookOpen className="w-5 h-5" /> },
+        { year: '1693', title: '1차 안용복 사건', desc: '안용복이 일본으로 끌려가 독도가 조선 땅임을 강력히 주장함.', icon: <Anchor className="w-5 h-5" /> },
+        { year: '1696', title: '2차 안용복 사건', desc: '안용복이 일본에 건너가 불법 침범에 항의하자, 일본 막부가 "울릉도 도해 금지령"을 내림.', icon: <Anchor className="w-5 h-5" /> },
+      ]
+    },
+    {
+      id: 'era2',
+      eraTitle: '18세기 ~ 19세기',
+      eraSubtitle: '조선 후기 ~ 대한제국: 국제적 인식과 칙령 선포',
+      color: 'indigo',
+      events: [
+        { year: '1785', title: '삼국접양지도', desc: '일본 하야시 시헤이가 제작. 독도를 조선색(황색)으로 칠하고 "조선의 것"이라 표기함.', icon: <MapPin className="w-5 h-5" /> },
+        { year: '1877', title: '태정관 지령', desc: '일본 최고 행정기관이 "독도와 울릉도는 일본과 관계없다"고 공식 인정함.', icon: <BookOpen className="w-5 h-5" /> },
+        { year: '1900', title: '대한제국 칙령 41호', desc: '고종 황제가 독도를 울릉군의 관할 구역으로 공식 반포함.', icon: <Flag className="w-5 h-5" />, highlight: true },
+      ]
+    },
+    {
+      id: 'era3',
+      eraTitle: '20세기',
+      eraSubtitle: '일제강점기 ~ 광복 이후: 수난과 수호',
+      color: 'slate',
+      events: [
+        { year: '1905', title: '시마네현 고시 40호', desc: '일본이 러일전쟁 중 독도를 불법적으로 "다케시마"로 편입함.', icon: <AlertTriangle className="w-5 h-5 text-red-500" />, isNegative: true },
+        { year: '1906', title: '심흥택 보고서', desc: '울릉군수 심흥택이 독도가 일본에 편입되었다는 소식을 듣고 중앙 정부에 보고함.', icon: <BookOpen className="w-5 h-5" /> },
+        { year: '1946', title: 'SCAPIN 제677호', desc: '연합군최고사령관 지령으로 독도를 일본의 통치권에서 제외함.', icon: <BookOpen className="w-5 h-5" /> },
+        { year: '1951', title: '샌프란시스코 강화조약', desc: '일본이 한국의 독립을 인정했으나, 독도 명시 누락으로 분쟁의 씨앗이 됨.', icon: <BookOpen className="w-5 h-5" /> },
+        { year: '1952', title: '평화선 선포', desc: '이승만 대통령이 독도를 포함한 인접 해양 주권을 선언함.', icon: <Shield className="w-5 h-5" /> },
+        { year: '1953', title: '독도의용수비대 활동', desc: '홍순칠 등 민간인들이 독도에 상주하며 일본의 침범을 막음.', icon: <Shield className="w-5 h-5" />, highlight: true },
+        { year: '1965', title: '한일기본조약', desc: '독도 문제를 언급하지 않고 봉합함 (이후 갈등 잠복).', icon: <BookOpen className="w-5 h-5" /> },
+        { year: '1998', title: '신한일어업협정', desc: '독도가 한일 중간수역에 포함되며 논란이 발생함.', icon: <Anchor className="w-5 h-5" /> },
+      ]
+    },
+    {
+      id: 'era4',
+      eraTitle: '21세기 (현대)',
+      eraSubtitle: '지속되는 갈등과 대응',
+      color: 'teal',
+      events: [
+        { year: '2005', title: '다케시마의 날 제정', desc: '일본 시마네현이 2월 22일을 "다케시마의 날"로 제정함.', icon: <AlertTriangle className="w-5 h-5 text-red-500" />, isNegative: true },
+        { year: '2011', title: '일본 교과서 왜곡', desc: '일본 중학교 교과서 14종에 독도 영유권 주장이 기술됨.', icon: <AlertTriangle className="w-5 h-5 text-red-500" />, isNegative: true },
+      ]
+    }
+  ];
+
+  const toggleEra = (id: string) => {
+    if (activeEra === 'all') return;
+    setActiveEra(activeEra === id ? null : id);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+      {/* Header Section */}
+      <header className="bg-gradient-to-r from-blue-900 to-blue-700 text-white py-12 px-4 shadow-lg relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="absolute bottom-0 w-full">
+             <path fill="#ffffff" fillOpacity="1" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+           </svg>
+        </div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="flex justify-center mb-4">
+            <Globe className="w-12 h-12 text-blue-200" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">독도 역사 연표</h1>
+          <p className="text-blue-100 text-lg md:text-xl font-light">
+            대한민국의 아침이 시작되는 곳,<br className="md:hidden" /> 독도의 역사를 흐름에 따라 정리하였습니다.
+          </p>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-4 py-12">
+        
+        {/* Controls */}
+        <div className="flex flex-wrap justify-center gap-2 mb-12 sticky top-4 z-20 bg-slate-50/90 backdrop-blur-sm py-2 rounded-lg">
+          <button 
+            onClick={() => setActiveEra('all')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeEra === 'all' ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}`}
+          >
+            전체 보기
+          </button>
+          {historyData.map((era) => (
+             <button 
+             key={era.id}
+             onClick={() => setActiveEra(era.id)}
+             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeEra === era.id ? 'bg-blue-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'}`}
+           >
+             {era.eraTitle.split('(')[0]}
+           </button>
+          ))}
+        </div>
+
+        <div className="space-y-12">
+          {historyData.map((era) => {
+            if (activeEra !== 'all' && activeEra !== era.id) return null;
+
+            return (
+              <div key={era.id} className="relative animate-fadeIn">
+                {/* Era Header */}
+                <div className="flex items-center mb-8">
+                  <div className={`w-2 h-12 bg-${era.color}-500 rounded-full mr-4`}></div>
+                  <div>
+                    <h2 className="text-2xl md:text-3xl font-bold text-slate-800">{era.eraTitle}</h2>
+                    <p className="text-slate-500 font-medium">{era.eraSubtitle}</p>
+                  </div>
+                </div>
+
+                {/* Timeline Events */}
+                <div className="border-l-2 border-slate-200 ml-4 md:ml-6 space-y-8 pb-4">
+                  {era.events.map((event, idx) => (
+                    <div key={idx} className="relative pl-8 md:pl-12 group">
+                      {/* Timeline Dot */}
+                      <div className={`absolute left-[-9px] top-0 w-5 h-5 rounded-full border-4 border-white shadow-sm transition-transform group-hover:scale-125
+                        ${event.isNegative ? 'bg-red-500' : event.highlight ? 'bg-blue-600' : 'bg-slate-400'}`}>
+                      </div>
+
+                      {/* Content Card */}
+                      <div className={`bg-white p-6 rounded-xl shadow-sm border transition-all hover:shadow-md
+                        ${event.highlight ? 'border-blue-200 bg-blue-50/30' : 'border-slate-100'}`}>
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-2">
+                          <div className="flex items-center gap-3">
+                            <span className={`text-xl font-bold font-mono tracking-tight
+                              ${event.isNegative ? 'text-red-600' : 'text-blue-900'}`}>
+                              {event.year}
+                            </span>
+                            <div className={`p-1.5 rounded-full ${event.isNegative ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600'}`}>
+                              {event.icon}
+                            </div>
+                          </div>
+                          
+                        </div>
+                        
+                        <h3 className={`text-lg font-bold mb-2 ${event.isNegative ? 'text-slate-700' : 'text-slate-900'}`}>
+                          {event.title}
+                          {event.highlight && <span className="ml-2 inline-block px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-full align-middle">주요 사건</span>}
+                        </h3>
+                        <p className="text-slate-600 leading-relaxed word-keep-all">
+                          {event.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-slate-800 text-slate-300 py-12 px-4 mt-12">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="flex justify-center mb-6">
+            <Shield className="w-10 h-10 text-slate-400" />
+          </div>
+          <p className="mb-4 text-lg">
+            "독도는 역사적, 지리적, 국제법적으로 명백한 우리 고유의 영토입니다."
+          </p>
+          <div className="text-sm text-slate-500">
+            <p>참고: 동북아역사재단 독도연구소 및 주요 역사 기록</p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Timeline;
