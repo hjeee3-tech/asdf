@@ -1,0 +1,140 @@
+from PIL import Image, ImageDraw, ImageFont
+
+# 이미지 생성
+width = 1800
+height = 1400
+img = Image.new('RGB', (width, height), color='white')
+draw = ImageDraw.Draw(img)
+
+# 폰트
+try:
+    title_font = ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc", 45)
+    box_font = ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc", 22)
+    small_font = ImageFont.truetype("/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc", 18)
+except:
+    title_font = ImageFont.load_default()
+    box_font = ImageFont.load_default()
+    small_font = ImageFont.load_default()
+
+# 색상
+box_color = (100, 126, 234)
+text_color = (255, 255, 255)
+arrow_color = (100, 126, 234)
+note_bg = (240, 245, 250)
+note_border = (100, 126, 234)
+black = (45, 55, 72)
+
+# 제목
+draw.text((width//2, 40), "업무 프로세스 플로우차트", font=title_font, fill=black, anchor="mm")
+
+# 박스 함수
+def draw_box(x, y, w, h, text, is_circle=False):
+    if is_circle:
+        draw.ellipse([x, y, x+w, y+h], fill=box_color, outline=box_color, width=3)
+    else:
+        draw.rounded_rectangle([x, y, x+w, y+h], radius=12, fill=box_color)
+    
+    lines = text.split('\n')
+    line_height = 26
+    total_h = len(lines) * line_height
+    start_y = y + (h - total_h) // 2
+    
+    for i, line in enumerate(lines):
+        bbox = draw.textbbox((0, 0), line, font=box_font)
+        tw = bbox[2] - bbox[0]
+        draw.text((x + (w - tw) // 2, start_y + i * line_height), line, font=box_font, fill=text_color)
+
+# 화살표
+def draw_arrow(x1, y1, x2, y2, direction='right'):
+    draw.line([x1, y1, x2, y2], fill=arrow_color, width=4)
+    if direction == 'right':
+        draw.polygon([(x2, y2), (x2-12, y2-7), (x2-12, y2+7)], fill=arrow_color)
+    else:
+        draw.polygon([(x2, y2), (x2+12, y2-7), (x2+12, y2+7)], fill=arrow_color)
+
+# 상단 플로우
+y1 = 120
+gap = 25
+x = 50
+
+draw_box(x, y1, 100, 100, "영업", True)
+draw_arrow(x+100, y1+50, x+125, y1+50, 'right')
+
+x += 125
+draw_box(x, y1, 150, 100, "착수미팅\n(명언,기획)")
+draw_arrow(x+150, y1+50, x+175, y1+50, 'right')
+
+x += 175
+draw_box(x, y1, 110, 100, "기획")
+draw_arrow(x+110, y1+50, x+135, y1+50, 'right')
+
+x += 135
+draw_box(x, y1, 170, 100, "기획/디자인/\n개발\n협업단계리뷰")
+draw_arrow(x+170, y1+50, x+195, y1+50, 'right')
+
+x += 195
+draw_box(x, y1, 110, 100, "디자인")
+draw_arrow(x+110, y1+50, x+135, y1+50, 'right')
+
+x += 135
+draw_box(x, y1, 150, 100, "기획팀검수\n완성설계")
+draw_arrow(x+150, y1+50, x+175, y1+50, 'right')
+
+x += 175
+draw_box(x, y1, 130, 100, "완성설계")
+
+# 하단 플로우
+y2 = 270
+x = 1600
+
+draw_box(x, y2, 170, 100, "디자인팀검수\n계발\n(포즈중)")
+draw_arrow(x, y2+50, x-25, y2+50, 'left')
+
+x -= 195
+draw_box(x, y2, 150, 100, "개발팀\n내부QA")
+draw_arrow(x, y2+50, x-25, y2+50, 'left')
+
+x -= 175
+draw_box(x, y2, 150, 100, "기획/디자인\nQA")
+draw_arrow(x, y2+50, x-25, y2+50, 'left')
+
+x -= 175
+draw_box(x, y2, 130, 100, "교육\n검수")
+draw_arrow(x, y2+50, x-25, y2+50, 'left')
+
+x -= 155
+draw_box(x, y2, 100, 100, "완료", True)
+
+# 메모 제목
+draw.text((width//2, 430), "주요 메모 사항", font=title_font, fill=black, anchor="mm")
+
+# 메모 카드
+def draw_note(x, y, w, h, title, items):
+    draw.rounded_rectangle([x, y, x+w, y+h], radius=10, fill=note_bg, outline=note_border, width=3)
+    draw.text((x+15, y+15), f"★ {title}", font=box_font, fill=black)
+    y_pos = y + 55
+    for item in items:
+        draw.text((x+20, y_pos), f"• {item}", font=small_font, fill=(70, 70, 70))
+        y_pos += 30
+
+y_cards = 510
+
+draw_note(50, y_cards, 380, 210, "슬랙 리스트 활용", 
+          ["화면설계 update 필요", "디스크화된 문서화", "히트맵 + Q&A 마케팅", "개발팀 매뉴얼"])
+
+draw_note(470, y_cards, 380, 210, "개발 후 체크리스트",
+          ["버팀목 (방식)", "드릴볼처 (대체) 시뮬기", "외모센트 (1개)", "골라체트 (자호)"])
+
+draw_note(890, y_cards, 380, 210, "서울대 프로젝트",
+          ["서울대 (자호)", "드릴볼처 (대체)", "외모센트 (1개) 시뮬기"])
+
+draw_note(50, y_cards+250, 380, 190, "주요 체크 포인트",
+          ["피기가 - 버져추운 필요", "링크Y - p.4차 버전으로 바짐", "히스토리 - 하세 추기"])
+
+draw_note(470, y_cards+250, 380, 190, "관련 플랫폼",
+          ["히트맵 + 오신기자", "SN조결과 문통화", "마시기/와이기", "링크드", "악관"])
+
+# 저장
+output = '/mnt/user-data/outputs/flowchart_diagram.png'
+img.save(output, 'PNG')
+output
