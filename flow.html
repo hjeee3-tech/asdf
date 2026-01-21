@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1800px;
+            max-width: 1900px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -45,7 +45,7 @@
             align-items: center;
             justify-content: flex-start;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 15px;
             margin-bottom: 40px;
         }
 
@@ -55,11 +55,11 @@
             padding: 25px 30px;
             border-radius: 15px;
             font-weight: 600;
-            font-size: 18px;
+            font-size: 17px;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
             text-align: center;
-            min-width: 130px;
-            line-height: 1.6;
+            min-width: 120px;
+            line-height: 1.5;
         }
 
         .flow-box.circle {
@@ -77,89 +77,33 @@
             font-size: 28px;
             color: #667eea;
             font-weight: bold;
-            margin: 0 5px;
-        }
-
-        /* 메모 섹션 */
-        .memo-title {
-            text-align: center;
-            font-size: 32px;
-            font-weight: 700;
-            color: #2d3748;
-            margin: 60px 0 40px;
-        }
-
-        .notes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .note-card {
-            background: #f0f4f8;
-            border-left: 5px solid #667eea;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-
-        .note-card h3 {
-            color: #2d3748;
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-        }
-
-        .note-card h3::before {
-            content: "★";
-            color: #667eea;
-            margin-right: 10px;
-            font-size: 22px;
-        }
-
-        .note-card ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .note-card li {
-            padding: 10px 0;
-            color: #4a5568;
-            font-size: 16px;
-            line-height: 1.6;
-            padding-left: 25px;
-            position: relative;
-        }
-
-        .note-card li::before {
-            content: "•";
-            position: absolute;
-            left: 5px;
-            color: #667eea;
-            font-weight: bold;
-            font-size: 18px;
+            margin: 0 3px;
         }
 
         @media (max-width: 1400px) {
-            .notes-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 900px) {
-            .notes-grid {
-                grid-template-columns: 1fr;
+            .container {
+                padding: 30px 20px;
             }
             
             .flow-row {
                 justify-content: center;
             }
-            
-            .container {
-                padding: 30px 20px;
+        }
+
+        @media (max-width: 768px) {
+            .flow-box {
+                font-size: 15px;
+                padding: 20px 25px;
+                min-width: 100px;
+            }
+
+            .flow-box.circle {
+                width: 100px;
+                height: 100px;
+            }
+
+            h1 {
+                font-size: 28px;
             }
         }
     </style>
@@ -168,94 +112,41 @@
     <div class="container">
         <h1>📋 업무 프로세스 플로우차트</h1>
 
-        <!-- 상단 플로우 -->
+        <!-- 첫 번째 줄 -->
         <div class="flow-section">
             <div class="flow-row">
                 <div class="flow-box circle">영업</div>
                 <span class="arrow">→</span>
-                <div class="flow-box">착수미팅<br>(명언, 기획)</div>
+                <div class="flow-box">착수미팅<br>(영업, 기획)</div>
                 <span class="arrow">→</span>
                 <div class="flow-box">기획</div>
                 <span class="arrow">→</span>
-                <div class="flow-box">기획/디자인/개발<br>협업 단계 리뷰</div>
+                <div class="flow-box">기획/디자인/개발/<br>영업 단체 리뷰</div>
+                <span class="arrow">→</span>
+                <div class="flow-box">고객<br>OPEN</div>
                 <span class="arrow">→</span>
                 <div class="flow-box">디자인</div>
                 <span class="arrow">→</span>
-                <div class="flow-box">기획팀 검수<br>완성 설계</div>
+                <div class="flow-box">기획팀<br>검수</div>
                 <span class="arrow">→</span>
-                <div class="flow-box">완성설계</div>
+                <div class="flow-box">고객<br>OPEN</div>
             </div>
 
-            <!-- 하단 플로우 (역방향) -->
-            <div class="flow-row" style="justify-content: flex-end;">
-                <div class="flow-box circle">완료</div>
-                <span class="arrow">←</span>
-                <div class="flow-box">교육<br>검수</div>
-                <span class="arrow">←</span>
-                <div class="flow-box">기획/디자인<br>QA</div>
-                <span class="arrow">←</span>
+            <!-- 두 번째 줄 -->
+            <div class="flow-row">
+                <div class="flow-box">화면설계</div>
+                <span class="arrow">→</span>
+                <div class="flow-box">개발</div>
+                <span class="arrow">→</span>
+                <div class="flow-box">디자인팀 검수<br>(프론트)</div>
+                <span class="arrow">→</span>
                 <div class="flow-box">개발팀<br>내부 QA</div>
-                <span class="arrow">←</span>
-                <div class="flow-box">디자인팀 검수<br>계발<br>(포즈중)</div>
-            </div>
-        </div>
-
-        <!-- 메모 섹션 -->
-        <h2 class="memo-title">주요 메모 사항</h2>
-
-        <div class="notes-grid">
-            <!-- 카드 1 -->
-            <div class="note-card">
-                <h3>슬랙 리스트 활용</h3>
-                <ul>
-                    <li>화면설계 update 필요</li>
-                    <li>디스크화된 문서화</li>
-                    <li>히트맵 + Q&A 마케팅</li>
-                    <li>개발팀 매뉴얼</li>
-                </ul>
-            </div>
-
-            <!-- 카드 2 -->
-            <div class="note-card">
-                <h3>개발 후 체크리스트</h3>
-                <ul>
-                    <li>버팀목 (방식)</li>
-                    <li>드릴볼처 (대체) 시뮬기</li>
-                    <li>외모센트 (1개)</li>
-                    <li>골라체트 (자호)</li>
-                </ul>
-            </div>
-
-            <!-- 카드 3 -->
-            <div class="note-card">
-                <h3>서울대 프로젝트</h3>
-                <ul>
-                    <li>서울대 (자호)</li>
-                    <li>드릴볼처 (대체)</li>
-                    <li>외모센트 (1개) 시뮬기</li>
-                </ul>
-            </div>
-
-            <!-- 카드 4 -->
-            <div class="note-card">
-                <h3>주요 체크 포인트</h3>
-                <ul>
-                    <li>피기가 - 버져추운 필요</li>
-                    <li>링크Y - p.4차 버전으로 바짐</li>
-                    <li>히스토리 - 하세 추기</li>
-                </ul>
-            </div>
-
-            <!-- 카드 5 -->
-            <div class="note-card">
-                <h3>관련 플랫폼</h3>
-                <ul>
-                    <li>히트맵 + 오신기자</li>
-                    <li>SN조결과 문통화</li>
-                    <li>마시기/와이기</li>
-                    <li>링크드</li>
-                    <li>악관</li>
-                </ul>
+                <span class="arrow">→</span>
+                <div class="flow-box">기획/디자인<br>QA</div>
+                <span class="arrow">→</span>
+                <div class="flow-box">고객<br>검수</div>
+                <span class="arrow">→</span>
+                <div class="flow-box circle">완료</div>
             </div>
         </div>
     </div>
