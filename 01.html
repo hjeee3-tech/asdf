@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookOpen, Anchor, Shield, Flag, AlertTriangle, ChevronDown, ChevronUp, MapPin, Globe } from 'lucide-react';
+import { BookOpen, Anchor, Shield, Flag, AlertTriangle, MapPin, Globe } from 'lucide-react';
 
 const Timeline = () => {
   const [activeEra, setActiveEra] = useState<string | null>('all');
@@ -9,7 +9,8 @@ const Timeline = () => {
       id: 'era1',
       eraTitle: '15세기 ~ 17세기',
       eraSubtitle: '조선 전기 ~ 중기: 우리 영토임이 기록되다',
-      color: 'blue',
+      // 수정: Tailwind가 인식할 수 있도록 완전한 클래스명을 사용합니다.
+      colorClass: 'bg-blue-500', 
       events: [
         { year: '1454', title: '세종실록지리지', desc: '우산(독도)과 무릉(울릉도)이 강원도 울진현에 속한다고 기록함.', icon: <BookOpen className="w-5 h-5" /> },
         { year: '1531', title: '신증동국여지승람', desc: '독도가 우리 영토임을 밝히는 관찬 지리지가 편찬됨.', icon: <BookOpen className="w-5 h-5" /> },
@@ -22,7 +23,7 @@ const Timeline = () => {
       id: 'era2',
       eraTitle: '18세기 ~ 19세기',
       eraSubtitle: '조선 후기 ~ 대한제국: 국제적 인식과 칙령 선포',
-      color: 'indigo',
+      colorClass: 'bg-indigo-500',
       events: [
         { year: '1785', title: '삼국접양지도', desc: '일본 하야시 시헤이가 제작. 독도를 조선색(황색)으로 칠하고 "조선의 것"이라 표기함.', icon: <MapPin className="w-5 h-5" /> },
         { year: '1877', title: '태정관 지령', desc: '일본 최고 행정기관이 "독도와 울릉도는 일본과 관계없다"고 공식 인정함.', icon: <BookOpen className="w-5 h-5" /> },
@@ -33,7 +34,7 @@ const Timeline = () => {
       id: 'era3',
       eraTitle: '20세기',
       eraSubtitle: '일제강점기 ~ 광복 이후: 수난과 수호',
-      color: 'slate',
+      colorClass: 'bg-slate-500',
       events: [
         { year: '1905', title: '시마네현 고시 40호', desc: '일본이 러일전쟁 중 독도를 불법적으로 "다케시마"로 편입함.', icon: <AlertTriangle className="w-5 h-5 text-red-500" />, isNegative: true },
         { year: '1906', title: '심흥택 보고서', desc: '울릉군수 심흥택이 독도가 일본에 편입되었다는 소식을 듣고 중앙 정부에 보고함.', icon: <BookOpen className="w-5 h-5" /> },
@@ -49,18 +50,13 @@ const Timeline = () => {
       id: 'era4',
       eraTitle: '21세기 (현대)',
       eraSubtitle: '지속되는 갈등과 대응',
-      color: 'teal',
+      colorClass: 'bg-teal-500',
       events: [
         { year: '2005', title: '다케시마의 날 제정', desc: '일본 시마네현이 2월 22일을 "다케시마의 날"로 제정함.', icon: <AlertTriangle className="w-5 h-5 text-red-500" />, isNegative: true },
         { year: '2011', title: '일본 교과서 왜곡', desc: '일본 중학교 교과서 14종에 독도 영유권 주장이 기술됨.', icon: <AlertTriangle className="w-5 h-5 text-red-500" />, isNegative: true },
       ]
     }
   ];
-
-  const toggleEra = (id: string) => {
-    if (activeEra === 'all') return;
-    setActiveEra(activeEra === id ? null : id);
-  };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
@@ -112,7 +108,8 @@ const Timeline = () => {
               <div key={era.id} className="relative animate-fadeIn">
                 {/* Era Header */}
                 <div className="flex items-center mb-8">
-                  <div className={`w-2 h-12 bg-${era.color}-500 rounded-full mr-4`}></div>
+                  {/* 수정: 동적 클래스 대신 colorClass 직접 사용 */}
+                  <div className={`w-2 h-12 ${era.colorClass} rounded-full mr-4`}></div>
                   <div>
                     <h2 className="text-2xl md:text-3xl font-bold text-slate-800">{era.eraTitle}</h2>
                     <p className="text-slate-500 font-medium">{era.eraSubtitle}</p>
