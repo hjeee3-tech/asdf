@@ -4,7 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>업무 프로세스 플로우차트</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --text-dark: #2d3748;
+            --arrow-color: #a0aec0;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -12,98 +21,259 @@
         }
 
         body {
-            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 40px 20px;
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8fafc;
             min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
 
         .container {
-            max-width: 1900px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 1400px;
             background: white;
-            border-radius: 20px;
-            padding: 50px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 24px;
+            padding: 60px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         }
 
         h1 {
             text-align: center;
-            color: #2d3748;
-            margin-bottom: 50px;
-            font-size: 36px;
-            font-weight: 700;
-        }
-
-        /* 플로우 섹션 */
-        .flow-section {
+            color: var(--text-dark);
             margin-bottom: 60px;
+            font-size: 2.2rem;
+            font-weight: 800;
+            position: relative;
+            display: inline-block;
+            left: 50%;
+            transform: translateX(-50%);
         }
 
-        .flow-row {
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+        }
+
+        /* 그리드 레이아웃 설정 (5열) */
+        .flow-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 50px 30px; /* 세로 간격, 가로 간격 */
+        }
+
+        .step-wrapper {
+            position: relative;
             display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 40px;
-        }
-
-        .flow-box {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 25px 30px;
-            border-radius: 15px;
-            font-weight: 600;
-            font-size: 17px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-            text-align: center;
-            min-width: 120px;
-            line-height: 1.5;
-        }
-
-        .flow-box.circle {
-            border-radius: 50%;
-            width: 120px;
-            height: 120px;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 20px;
-            min-width: 120px;
+            align-items: center; /* 카드 수직 중앙 정렬 */
         }
 
-        .arrow {
-            font-size: 28px;
+        .step-box {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px 16px;
+            width: 100%;
+            height: 100%; /* 부모 높이 채우기 */
+            min-height: 130px; /* 최소 높이 확보 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-box:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+            border-color: #667eea;
+        }
+
+        /* 순번 스타일 */
+        .step-number {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #cbd5e0;
+            font-family: 'Roboto', sans-serif;
+        }
+        .step-box:hover .step-number {
             color: #667eea;
-            font-weight: bold;
-            margin: 0 3px;
         }
 
-        @media (max-width: 1400px) {
-            .container {
-                padding: 30px 20px;
+        .step-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            word-break: keep-all;
+            line-height: 1.35;
+            margin-bottom: 4px;
+        }
+
+        .step-desc {
+            font-size: 0.85rem;
+            color: #718096;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        /* 시작(영업)과 끝(완료) 강조 */
+        .step-wrapper.start .step-box, 
+        .step-wrapper.end .step-box {
+            background: var(--primary-gradient);
+            border: none;
+        }
+        
+        .step-wrapper.start .step-title,
+        .step-wrapper.start .step-desc,
+        .step-wrapper.start .step-number,
+        .step-wrapper.end .step-title,
+        .step-wrapper.end .step-number {
+            color: white;
+        }
+
+        /* =========================================
+           데스크톱용 스네이크(ㄹ자) 레이아웃 로직 
+           ========================================= */
+        @media (min-width: 1025px) {
+            /* 2번째 줄(6~10) 역순 배치 및 위치 지정 */
+            .step-wrapper:nth-child(6) { grid-column: 5; grid-row: 2; }
+            .step-wrapper:nth-child(7) { grid-column: 4; grid-row: 2; }
+            .step-wrapper:nth-child(8) { grid-column: 3; grid-row: 2; }
+            .step-wrapper:nth-child(9) { grid-column: 2; grid-row: 2; }
+            .step-wrapper:nth-child(10) { grid-column: 1; grid-row: 2; }
+
+            /* 4번째 줄(16~) 역순 배치 및 위치 지정 */
+            .step-wrapper:nth-child(16) { grid-column: 5; grid-row: 4; }
+
+            /* 화살표 공통 스타일 */
+            .step-wrapper::after {
+                font-family: Arial, sans-serif;
+                font-weight: bold;
+                font-size: 22px;
+                color: var(--arrow-color);
+                position: absolute;
+                z-index: 1;
             }
-            
-            .flow-row {
-                justify-content: center;
+
+            /* Type 1: 오른쪽 화살표 (➔) 
+               적용: 1,2,3,4번 그리고 11,12,13,14번 */
+            .step-wrapper:nth-child(1)::after, .step-wrapper:nth-child(2)::after,
+            .step-wrapper:nth-child(3)::after, .step-wrapper:nth-child(4)::after,
+            .step-wrapper:nth-child(11)::after, .step-wrapper:nth-child(12)::after,
+            .step-wrapper:nth-child(13)::after, .step-wrapper:nth-child(14)::after {
+                content: '➜';
+                right: -24px; /* 박스 밖으로 */
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            /* Type 2: 아래쪽 화살표 (▼) 
+               적용: 5번(1줄 끝), 10번(2줄 끝), 15번(3줄 끝) */
+            .step-wrapper:nth-child(5)::after,
+            .step-wrapper:nth-child(10)::after,
+            .step-wrapper:nth-child(15)::after {
+                content: '▼';
+                bottom: -35px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            /* Type 3: 왼쪽 화살표 (Back ➜) 
+               적용: 6,7,8,9번 (역방향 진행) */
+            .step-wrapper:nth-child(6)::after, .step-wrapper:nth-child(7)::after,
+            .step-wrapper:nth-child(8)::after, .step-wrapper:nth-child(9)::after {
+                content: '➜'; 
+                left: -24px;
+                top: 50%;
+                transform: translateY(-50%) rotate(180deg); /* 180도 회전하여 왼쪽 가리킴 */
+            }
+            /* 16번은 마지막이므로 화살표 없음 */
+        }
+
+        /* =========================================
+           태블릿/모바일 반응형 
+           ========================================= */
+        @media (max-width: 1024px) {
+            .flow-grid {
+                grid-template-columns: repeat(3, 1fr); /* 3열 */
+                gap: 40px 20px;
+            }
+
+            /* 스네이크 로직 해제 -> 기본 순서대로 나열 */
+            .step-wrapper:nth-child(n) {
+                grid-column: auto;
+                grid-row: auto;
+            }
+
+            /* 모든 화살표 기본 오른쪽으로 리셋 */
+            .step-wrapper::after {
+                content: '➜';
+                position: absolute;
+                right: -20px;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--arrow-color);
+                font-size: 20px;
+                font-weight: bold;
+            }
+
+            /* 3열마다 줄바꿈 화살표 */
+            .step-wrapper:nth-child(3n)::after {
+                content: '▼';
+                right: 50%;
+                top: auto;
+                bottom: -30px;
+                transform: translateX(50%);
+            }
+
+            /* 마지막 요소(16번) 화살표 제거 */
+            .step-wrapper:last-child::after {
+                content: none;
             }
         }
 
         @media (max-width: 768px) {
-            .flow-box {
-                font-size: 15px;
-                padding: 20px 25px;
-                min-width: 100px;
+            .container {
+                padding: 40px 20px;
+            }
+            
+            .flow-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 40px;
             }
 
-            .flow-box.circle {
-                width: 100px;
-                height: 100px;
+            .step-box {
+                min-height: auto;
+                padding: 20px;
             }
 
-            h1 {
-                font-size: 28px;
+            /* 모바일은 전부 아래 화살표 */
+            .step-wrapper::after {
+                content: '▼' !important;
+                right: 50% !important;
+                top: auto !important;
+                bottom: -30px !important;
+                transform: translateX(50%) !important;
+            }
+
+            .step-wrapper:last-child::after {
+                display: none !important;
             }
         }
     </style>
@@ -112,41 +282,127 @@
     <div class="container">
         <h1>📋 업무 프로세스 플로우차트</h1>
 
-        <!-- 첫 번째 줄 -->
-        <div class="flow-section">
-            <div class="flow-row">
-                <div class="flow-box circle">영업</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">착수미팅<br>(영업, 기획)</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">기획</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">기획/디자인/개발/<br>영업 단체 리뷰</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">고객<br>OPEN</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">디자인</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">기획팀<br>검수</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">고객<br>OPEN</div>
+        <div class="flow-grid">
+            <!-- Row 1: Left to Right -->
+            <div class="step-wrapper start">
+                <div class="step-box">
+                    <span class="step-number">01</span>
+                    <div class="step-title">영업</div>
+                </div>
             </div>
 
-            <!-- 두 번째 줄 -->
-            <div class="flow-row">
-                <div class="flow-box">화면설계</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">개발</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">디자인팀 검수<br>(프론트)</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">개발팀<br>내부 QA</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">기획/디자인<br>QA</div>
-                <span class="arrow">→</span>
-                <div class="flow-box">고객<br>검수</div>
-                <span class="arrow">→</span>
-                <div class="flow-box circle">완료</div>
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">02</span>
+                    <div class="step-title">착수미팅</div>
+                    <div class="step-desc">(영업, 기획)</div>
+                </div>
+            </div>
+
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">03</span>
+                    <div class="step-title">사전기획</div>
+                    <div class="step-desc">(POC)</div>
+                </div>
+            </div>
+
+            <!-- 새로 추가된 단계 -->
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">04</span>
+                    <div class="step-title">고객 OPEN</div>
+                </div>
+            </div>
+
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">05</span>
+                    <div class="step-title">단체 리뷰</div>
+                    <div class="step-desc">기획/디자인/개발/영업</div>
+                </div>
+            </div>
+
+            <!-- Row 2: Right to Left (Snake) -->
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">06</span>
+                    <div class="step-title">컴포넌트<br>와이어프레임</div>
+                    <div class="step-desc">기획</div> <!-- 요청사항 반영 -->
+                </div>
+            </div>
+
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">07</span>
+                    <div class="step-title">디자인</div>
+                </div>
+            </div>
+
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">08</span>
+                    <div class="step-title">기획팀 검수</div>
+                </div>
+            </div>
+
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">09</span>
+                    <div class="step-title">고객 OPEN</div>
+                </div>
+            </div>
+
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">10</span>
+                    <div class="step-title">화면설계</div>
+                </div>
+            </div>
+
+            <!-- Row 3: Left to Right -->
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">11</span>
+                    <div class="step-title">개발</div>
+                </div>
+            </div>
+
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">12</span>
+                    <div class="step-title">디자인팀 검수</div>
+                    <div class="step-desc">(프론트)</div>
+                </div>
+            </div>
+
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">13</span>
+                    <div class="step-title">개발팀 내부 QA</div>
+                </div>
+            </div>
+
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">14</span>
+                    <div class="step-title">기획/디자인 QA</div>
+                </div>
+            </div>
+
+            <div class="step-wrapper">
+                <div class="step-box">
+                    <span class="step-number">15</span>
+                    <div class="step-title">고객 검수</div>
+                </div>
+            </div>
+
+            <!-- Row 4: Right to Left (Snake) -->
+            <div class="step-wrapper end">
+                <div class="step-box">
+                    <span class="step-number">16</span>
+                    <div class="step-title">완료</div>
+                </div>
             </div>
         </div>
     </div>
