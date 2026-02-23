@@ -247,16 +247,16 @@
         <!-- Content Area -->
         <div class="content-area">
             
-            <!-- Filter Section (공장별 조회 간소화) -->
+            <!-- Filter Section (공장별 조회 간소화 및 월 단위 변경) -->
             <div class="filter-card">
                 <div class="filter-title"><i class="fa-solid fa-filter"></i> 공장별 통계 조회</div>
                 <div class="filter-grid">
                     <div class="filter-group">
-                        <label>검색 기간</label>
+                        <label>검색 기간 (월 단위)</label>
                         <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="date" value="2025-09-01" style="width: 160px;">
+                            <input type="month" value="2025-09" style="width: 160px;">
                             <span style="color: #94a3b8;">~</span>
-                            <input type="date" value="2026-02-28" style="width: 160px;">
+                            <input type="month" value="2026-02" style="width: 160px;">
                         </div>
                     </div>
                     <div class="filter-group">
@@ -276,7 +276,7 @@
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <div>
                         <span class="badge">조회 결과</span>
-                        <span>기준 기간: 2025.09.01 ~ 2026.02.28 | 대상: 서울 공장</span>
+                        <span>기준 기간: 2025년 09월 ~ 2026년 02월 | 대상: 서울 공장</span>
                     </div>
                     <div style="font-size: 13px; color: #64748b; padding-left: 12px; border-left: 1px solid #bfdbfe;">
                         총 검사 4,250건 / 불량 210건
@@ -660,7 +660,7 @@
         showModal('AI 통계 데이터 종합 분석');
         
         const prompt = `
-다음은 2025.09.01 ~ 2026.02.28 기간 동안 '서울 공장'의 품질검사 통계 요약입니다.
+다음은 2025년 09월 ~ 2026년 02월 기간 동안 '서울 공장'의 품질검사 통계 요약입니다.
 - 총 검사 건수: 4,250건
 - 총 불량 건수: 210건 (평균 불량률 약 4.9%)
 - 4M 위반(GPS 이탈 등) 건수: (초품 64%, 중품 26%, 종품 10%)
