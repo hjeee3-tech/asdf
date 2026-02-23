@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프라코 초중품관리 어드민 - 통계</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: #e2e8f0; display: grid; place-items: center; min-height: 100vh;
+            font-family: 'Pretendard', sans-serif; color: #334155; padding: 40px 0;
+        }
+
+        .slide-container {
+            width: 1280px; height: 1180px; background-color: #f1f5f9;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden; display: flex; position: relative;
+        }
+
+        /* LNB (Sidebar) */
+        .sidebar {
+            width: 240px; background-color: #ffffff; border-right: 1px solid #e2e8f0;
+            display: flex; flex-direction: column; z-index: 10;
+        }
+        .logo {
+            height: 70px; display: flex; align-items: center; padding: 0 24px;
+            border-bottom: 1px solid #e2e8f0; font-weight: 800; font-size: 24px; color: #0f172a; letter-spacing: -1px;
+        }
+        .logo span { color: #2563eb; }
+        .menu { list-style: none; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+        .menu li {
+            padding: 12px 16px; border-radius: 8px; cursor: pointer; font-size: 15px;
+            font-weight: 500; color: #64748b; display: flex; align-items: center; gap: 12px; transition: all 0.2s;
+        }
+        .menu li:hover { background-color: #f8fafc; color: #0f172a; }
+        .menu li.active { background-color: #eff6ff; color: #2563eb; font-weight: 600; }
+        .menu li i { width: 20px; text-align: center; font-size: 16px; }
+
+        /* Main Content */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+        /* GNB (Header) */
+        .header {
+            height: 70px; background-color: #ffffff; border-bottom: 1px solid #e2e8f0;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 32px; flex-shrink: 0;
+        }
+        .header-title { font-size: 18px; font-weight: 700; color: #0f172a; }
+        .user-profile { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; }
+        .avatar {
+            width: 36px; height: 36px; background-color: #1e293b; color: white;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;
+        }
+
+        /* Content Area */
+        .content-area {
+            padding: 24px 32px; display: flex; flex-direction: column; gap: 20px;
+            height: calc(100% - 70px); overflow-y: auto;
+        }
+
+        /* Filter Section */
+        .filter-card {
+            background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+            padding: 20px; display: flex; flex-direction: column; gap: 16px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); flex-shrink: 0;
+        }
+        .filter-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+        .filter-grid { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 8px; }
+        .filter-group label { font-size: 13px; font-weight: 600; color: #475569; }
+        .filter-group select, .filter-group input {
+            padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px;
+            font-family: inherit; font-size: 14px; color: #334155; outline: none; background-color: #f8fafc;
+        }
+        .filter-group select:focus, .filter-group input:focus { border-color: #2563eb; background-color: #ffffff; }
+        .search-btn {
+            background-color: #1e293b; color: white; border: none; border-radius: 6px;
+            padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; height: 40px;
+            display: flex; align-items: center; gap: 8px; transition: background 0.2s;
+        }
+        .search-btn:hover { background-color: #0f172a; }
+
+        /* Report Info Bar & AI Button */
+        .report-info {
+            display: flex; justify-content: space-between; align-items: center; 
+            background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 20px;
+        }
+        .report-info span { font-size: 14px; font-weight: 600; color: #1e3a8a; }
+        .report-info .badge { background-color: #2563eb; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 8px; }
+        
+        .btn-ai {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white; border: none; border-radius: 6px; padding: 8px 16px;
+            font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+            box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.3); transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-ai:hover { transform: translateY(-1px); box-shadow: 0 6px 8px -1px rgba(99, 102, 241, 0.4); }
+        .btn-ai-small {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white; border: none; border-radius: 4px; padding: 4px 8px;
+            font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;
+        }
+
+        /* Dashboard Grid Layout */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 20px; }
+
+        .card {
+            background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
+            padding: 20px; display: flex; flex-direction: column; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;}
+        
+        .chart-legend { display: flex; justify-content: flex-end; gap: 12px; font-size: 12px; font-weight: 500; color: #475569; }
+        .chart-legend div { display: flex; align-items: center; gap: 6px; }
+        .legend-box { width: 12px; height: 12px; border-radius: 2px; box-sizing: border-box; }
+        .legend-line { width: 16px; height: 3px; border-radius: 2px; }
+        .chart-container { position: relative; width: 100%; height: 180px; }
+
+        /* Common Axes Styling */
+        .chart-area { display: flex; align-items: flex-end; justify-content: space-between; height: 100%; padding: 0 10px 25px 40px; border-bottom: 1px solid #cbd5e1; position: relative; }
+        .y-axis { position: absolute; left: 0; top: 0; bottom: 25px; display: flex; flex-direction: column; justify-content: space-between; font-size: 11px; color: #94a3b8; align-items: flex-end; width: 30px; }
+        .grid-line { position: absolute; left: 40px; right: 0; height: 1px; background-color: #f1f5f9; z-index: 0; pointer-events: none; }
+        .x-label { position: absolute; bottom: -22px; font-size: 11px; color: #64748b; font-weight: 500; text-align: center; width: 100%; transform: translateX(-50%); left: 50%; }
+
+        /* Chart 1: Monthly Grouped Bar (Chart.js Style) */
+        .bar-group-monthly { display: flex; flex-direction: row; align-items: flex-end; justify-content: center; gap: 4px; height: 100%; width: 40px; z-index: 1; position: relative; }
+        /* Chart.js Blue & Red with transparency and border */
+        .bar-monthly-total { width: 16px; background-color: rgba(54, 162, 235, 0.6); border: 1px solid rgb(54, 162, 235); border-bottom: none; border-radius: 2px 2px 0 0; box-sizing: border-box; }
+        .bar-monthly-defect { width: 16px; background-color: rgba(255, 99, 132, 0.6); border: 1px solid rgb(255, 99, 132); border-bottom: none; border-radius: 2px 2px 0 0; box-sizing: border-box; }
+
+        /* Chart 2: SVG Line Chart (Chart.js Style) */
+        .svg-line-chart { position: absolute; top: 0; left: 40px; width: calc(100% - 50px); height: calc(100% - 25px); overflow: visible; z-index: 2; pointer-events: none; }
+        .line-marker { transition: r 0.2s; cursor: pointer; pointer-events: auto; }
+        .line-marker:hover { r: 6; }
+        .x-label-container { display: flex; justify-content: space-between; position: absolute; bottom: 0; left: 40px; right: 10px; }
+        .x-label-container div { position: relative; width: 0; }
+
+        /* Chart 3: Stacked Bar Chart (Chart.js Style) */
+        .stacked-group { display: flex; flex-direction: column; justify-content: flex-end; position: relative; height: 100%; width: 24px; border-radius: 4px 4px 0 0; overflow: hidden; align-items: center; z-index: 2;}
+        .stack-segment { width: 100%; transition: height 0.3s; box-sizing: border-box; }
+
+        /* Chart 4: Typography H-Bar */
+        .hbar-list { list-style: none; display: flex; flex-direction: column; gap: 16px; margin-top: 5px; }
+        .hbar-item { display: flex; flex-direction: column; gap: 4px; }
+        .hbar-header { display: flex; justify-content: space-between; align-items: baseline; }
+        .hbar-title { font-size: 14px; font-weight: 700; color: #334155; }
+        .hbar-value-container { display: flex; align-items: baseline; gap: 6px; }
+        .hbar-percentage { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+        .hbar-count { font-size: 12px; color: #64748b; font-weight: 500; }
+        .hbar-bg { width: 100%; height: 6px; background-color: #f1f5f9; border-radius: 3px; overflow: hidden; }
+        .hbar-fill { height: 100%; border-radius: 3px; }
+
+        /* Table Section */
+        .table-card { grid-column: 1 / -1; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
+        .table-header-area { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background-color: #fff;}
+        .table-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+        .table-actions { display: flex; gap: 8px; }
+        .btn-outline { border: 1px solid #cbd5e1; background: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 6px;}
+        .btn-outline:hover { background-color: #f8fafc; }
+
+        .table-wrapper { overflow-x: auto; flex: 1; }
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        thead th { background-color: #f8fafc; border-bottom: 1px solid #cbd5e1; font-size: 13px; padding: 12px 10px; font-weight: 600; color: #475569; cursor: pointer; position: relative;}
+        th.sorted { background-color: #eff6ff; color: #1e3a8a; border-bottom: 2px solid #2563eb; }
+        td { padding: 14px 10px; font-size: 13px; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .td-factory { font-weight: 600; color: #0f172a; text-align: left; padding-left: 20px;}
+        .td-part-type { font-size: 12px; color: #64748b; }
+        .td-part { display: inline-block; background-color: #eff6ff; color: #2563eb; padding: 4px 8px; border-radius: 4px; font-weight: 600; }
+        .td-number { font-variant-numeric: tabular-nums; font-weight: 500; }
+        .td-alert { color: #e11d48; font-weight: 600; }
+
+        /* AI Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(15, 23, 42, 0.6); z-index: 1000;
+            display: none; justify-content: center; align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background-color: #ffffff; width: 600px; max-height: 80vh; border-radius: 12px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex; flex-direction: column; overflow: hidden;
+            animation: modalFadeIn 0.3s ease-out forwards;
+        }
+        @keyframes modalFadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .modal-header {
+            padding: 20px 24px; border-bottom: 1px solid #e2e8f0;
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(to right, #ffffff, #f3e8ff);
+        }
+        .modal-title { font-size: 18px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;}
+        .close-btn { background: none; border: none; font-size: 20px; color: #64748b; cursor: pointer; }
+        .close-btn:hover { color: #0f172a; }
+        
+        .modal-body { padding: 24px; overflow-y: auto; flex: 1; font-size: 14px; line-height: 1.6; color: #334155; }
+        .modal-body h3 { font-size: 16px; color: #0f172a; margin-top: 16px; margin-bottom: 8px; }
+        .modal-body p { margin-bottom: 12px; }
+        .modal-body ul { margin-left: 20px; margin-bottom: 12px; }
+        .modal-body li { margin-bottom: 4px; }
+        
+        /* Loading Spinner */
+        .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; gap: 16px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: #8b5cf6; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { font-weight: 600; color: #64748b; background: linear-gradient(90deg, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: pulse 1.5s ease-in-out infinite;}
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    </style>
+</head>
+<body>
+
+<div class="slide-container" id="slide_statistics">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            PLAKOR<span>.</span>
+        </div>
+        <ul class="menu">
+            <li><i class="fa-solid fa-border-all"></i> 대시보드</li>
+            <li><i class="fa-solid fa-clipboard-check"></i> 검사 현황</li>
+            <li><i class="fa-solid fa-triangle-exclamation"></i> 불량 관리</li>
+            <li><i class="fa-solid fa-users"></i> 사용자 관리</li>
+            <li><i class="fa-solid fa-industry"></i> 공장 관리</li>
+            <li><i class="fa-solid fa-box"></i> 품목 관리</li>
+            <li><i class="fa-solid fa-car"></i> 차종 관리</li>
+            <li class="active"><i class="fa-solid fa-chart-line"></i> 통계</li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-title">프라코 초중품관리 어드민 - 통계 분석</div>
+            <div class="user-profile">
+                <span>관리자</span>
+                <div class="avatar">A</div>
+            </div>
+        </header>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            
+            <!-- Filter Section (공장별 조회 간소화) -->
+            <div class="filter-card">
+                <div class="filter-title"><i class="fa-solid fa-filter"></i> 공장별 통계 조회</div>
+                <div class="filter-grid">
+                    <div class="filter-group">
+                        <label>검색 기간</label>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="date" value="2025-09-01" style="width: 160px;">
+                            <span style="color: #94a3b8;">~</span>
+                            <input type="date" value="2026-02-28" style="width: 160px;">
+                        </div>
+                    </div>
+                    <div class="filter-group">
+                        <label>조회 대상 공장</label>
+                        <select style="width: 200px;">
+                            <option>전체 공장</option>
+                            <option selected>서울 공장</option>
+                            <option>부산 공장</option>
+                        </select>
+                    </div>
+                    <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i> 데이터 조회</button>
+                </div>
+            </div>
+
+            <!-- Report Context Bar with AI Button -->
+            <div class="report-info">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div>
+                        <span class="badge">조회 결과</span>
+                        <span>기준 기간: 2025.09.01 ~ 2026.02.28 | 대상: 서울 공장</span>
+                    </div>
+                    <div style="font-size: 13px; color: #64748b; padding-left: 12px; border-left: 1px solid #bfdbfe;">
+                        총 검사 4,250건 / 불량 210건
+                    </div>
+                </div>
+                <button class="btn-ai" onclick="openAIReport()">
+                    ✨ AI 종합 분석 리포트
+                </button>
+            </div>
+
+            <!-- Dashboard Grid Layout -->
+            <div class="dashboard-grid">
+                
+                <!-- Chart 1: 월별 검사 및 불량 건수 (Chart.js Style) -->
+                <div class="card">
+                    <div class="card-header" style="margin-bottom: 10px;">
+                        <div class="card-title">월별 검사 및 불량 건수</div>
+                        <div class="chart-legend">
+                            <div><div class="legend-box" style="background-color: rgba(54, 162, 235, 0.6); border: 1px solid rgb(54, 162, 235);"></div> 총 건수</div>
+                            <div><div class="legend-box" style="background-color: rgba(255, 99, 132, 0.6); border: 1px solid rgb(255, 99, 132);"></div> 불량 건수</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height: 160px;">
+                        <div class="chart-area">
+                            <div class="axis-label-y" style="position: absolute; top: -15px; left: 0; font-size: 11px; color: #64748b; font-weight: 600;">(건)</div>
+                            <div class="y-axis"><span>1,000</span><span>500</span><span>0</span></div>
+                            <div class="grid-line" style="top: 0%;"></div><div class="grid-line" style="top: 50%;"></div>
+                            
+                            <div style="display: flex; justify-content: space-between; width: 100%; height: 100%;">
+                                <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 40%;"></div><div class="bar-monthly-defect" style="height: 8%;"></div><span class="x-label">25.09</span></div>
+                                <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 55%;"></div><div class="bar-monthly-defect" style="height: 12%;"></div><span class="x-label">25.10</span></div>
+                                <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 45%;"></div><div class="bar-monthly-defect" style="height: 10%;"></div><span class="x-label">25.11</span></div>
+                                <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 85%;"></div><div class="bar-monthly-defect" style="height: 20%;"></div><span class="x-label">25.12</span></div>
+                                <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 60%;"></div><div class="bar-monthly-defect" style="height: 15%;"></div><span class="x-label">26.01</span></div>
+                                <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 75%;"></div><div class="bar-monthly-defect" style="height: 14%;"></div><span class="x-label">26.02</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart 2: 월별 내/외장 불량률 추이 (Chart.js Style) -->
+                <div class="card">
+                    <div class="card-header" style="margin-bottom: 10px;">
+                        <div class="card-title">월별 내/외장 불량률 추이 (%)</div>
+                        <div class="chart-legend">
+                            <div><div class="legend-line" style="background-color: rgb(255, 159, 64);"></div> 외장 부품</div>
+                            <div><div class="legend-line" style="background-color: rgb(75, 192, 192);"></div> 내장 부품</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height: 160px;">
+                        <div class="chart-area" style="padding: 0 0 25px 40px; border-bottom: none;">
+                            <div class="axis-label-y" style="position: absolute; top: -15px; left: 0; font-size: 11px; color: #64748b; font-weight: 600;">(%)</div>
+                            <div class="y-axis"><span>15</span><span>10</span><span>5</span><span>0</span></div>
+                            <div class="grid-line" style="top: 0%;"></div><div class="grid-line" style="top: 33.3%;"></div><div class="grid-line" style="top: 66.6%;"></div><div class="grid-line" style="top: 100%; background-color: #cbd5e1;"></div>
+                            
+                            <svg class="svg-line-chart" viewBox="0 0 500 135" preserveAspectRatio="none">
+                                <!-- 외장 부품 (Chart.js Orange) -->
+                                <polyline points="0,90 100,70 200,40 300,65 400,20 500,50" fill="none" stroke="rgb(255, 159, 64)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="0" cy="90" r="4" fill="#ffffff" stroke="rgb(255, 159, 64)" stroke-width="2" class="line-marker" />
+                                <circle cx="100" cy="70" r="4" fill="#ffffff" stroke="rgb(255, 159, 64)" stroke-width="2" class="line-marker" />
+                                <circle cx="200" cy="40" r="4" fill="#ffffff" stroke="rgb(255, 159, 64)" stroke-width="2" class="line-marker" />
+                                <circle cx="300" cy="65" r="4" fill="#ffffff" stroke="rgb(255, 159, 64)" stroke-width="2" class="line-marker" />
+                                <circle cx="400" cy="20" r="4" fill="#ffffff" stroke="rgb(255, 159, 64)" stroke-width="2" class="line-marker" />
+                                <circle cx="500" cy="50" r="4" fill="#ffffff" stroke="rgb(255, 159, 64)" stroke-width="2" class="line-marker" />
+
+                                <!-- 내장 부품 (Chart.js Green) -->
+                                <polyline points="0,120 100,110 200,130 300,80 400,100 500,115" fill="none" stroke="rgb(75, 192, 192)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="0" cy="120" r="4" fill="#ffffff" stroke="rgb(75, 192, 192)" stroke-width="2" class="line-marker" />
+                                <circle cx="100" cy="110" r="4" fill="#ffffff" stroke="rgb(75, 192, 192)" stroke-width="2" class="line-marker" />
+                                <circle cx="200" cy="130" r="4" fill="#ffffff" stroke="rgb(75, 192, 192)" stroke-width="2" class="line-marker" />
+                                <circle cx="300" cy="80" r="4" fill="#ffffff" stroke="rgb(75, 192, 192)" stroke-width="2" class="line-marker" />
+                                <circle cx="400" cy="100" r="4" fill="#ffffff" stroke="rgb(75, 192, 192)" stroke-width="2" class="line-marker" />
+                                <circle cx="500" cy="115" r="4" fill="#ffffff" stroke="rgb(75, 192, 192)" stroke-width="2" class="line-marker" />
+                            </svg>
+                            
+                            <div class="x-label-container">
+                                <div><span class="x-label" style="transform: translateX(-50%); left: 0;">25.09</span></div>
+                                <div><span class="x-label" style="transform: translateX(-50%); left: 0;">25.10</span></div>
+                                <div><span class="x-label" style="transform: translateX(-50%); left: 0;">25.11</span></div>
+                                <div><span class="x-label" style="transform: translateX(-50%); left: 0;">25.12</span></div>
+                                <div><span class="x-label" style="transform: translateX(-50%); left: 0;">26.01</span></div>
+                                <div><span class="x-label" style="transform: translateX(-50%); left: 0;">26.02</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart 3: 단계별 4M 위반 비율 (Chart.js Style 누적 막대) -->
+                <div class="card">
+                    <div class="card-header" style="margin-bottom: 10px;">
+                        <div class="card-title">단계별 4M 위반(GPS 이탈) 추이</div>
+                        <div class="chart-legend">
+                            <div><div class="legend-box" style="background-color: rgba(255, 99, 132, 0.6); border: 1px solid rgb(255, 99, 132);"></div> 종품</div>
+                            <div><div class="legend-box" style="background-color: rgba(255, 205, 86, 0.6); border: 1px solid rgb(255, 205, 86);"></div> 중품</div>
+                            <div><div class="legend-box" style="background-color: rgba(54, 162, 235, 0.6); border: 1px solid rgb(54, 162, 235);"></div> 초품</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height: 160px;">
+                        <div class="chart-area" style="padding: 0 10px 25px 40px; border-bottom: none;">
+                            <div class="axis-label-y" style="position: absolute; top: -15px; left: 0; font-size: 11px; color: #64748b; font-weight: 600;">(건)</div>
+                            <div class="y-axis"><span>40</span><span>20</span><span>0</span></div>
+                            <div class="grid-line" style="top: 0%;"></div><div class="grid-line" style="top: 50%;"></div><div class="grid-line" style="top: 100%; background-color: #cbd5e1;"></div>
+                            
+                            <div style="display: flex; justify-content: space-between; width: 100%; height: 100%;">
+                                <!-- Stacked bars with Chart.js palette borders & fills -->
+                                <div class="stacked-group">
+                                    <div class="stack-segment" style="height: 10%; background-color: rgba(255, 99, 132, 0.6); border: 1px solid rgb(255, 99, 132); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 15%; background-color: rgba(255, 205, 86, 0.6); border: 1px solid rgb(255, 205, 86); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 10%; background-color: rgba(54, 162, 235, 0.6); border: 1px solid rgb(54, 162, 235); border-bottom: none;"></div>
+                                    <span class="x-label">25.09</span>
+                                </div>
+                                <div class="stacked-group">
+                                    <div class="stack-segment" style="height: 15%; background-color: rgba(255, 99, 132, 0.6); border: 1px solid rgb(255, 99, 132); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 20%; background-color: rgba(255, 205, 86, 0.6); border: 1px solid rgb(255, 205, 86); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 12%; background-color: rgba(54, 162, 235, 0.6); border: 1px solid rgb(54, 162, 235); border-bottom: none;"></div>
+                                    <span class="x-label">25.10</span>
+                                </div>
+                                <div class="stacked-group">
+                                    <div class="stack-segment" style="height: 8%; background-color: rgba(255, 99, 132, 0.6); border: 1px solid rgb(255, 99, 132); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 10%; background-color: rgba(255, 205, 86, 0.6); border: 1px solid rgb(255, 205, 86); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 15%; background-color: rgba(54, 162, 235, 0.6); border: 1px solid rgb(54, 162, 235); border-bottom: none;"></div>
+                                    <span class="x-label">25.11</span>
+                                </div>
+                                <div class="stacked-group">
+                                    <div class="stack-segment" style="height: 25%; background-color: rgba(255, 99, 132, 0.6); border: 1px solid rgb(255, 99, 132); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 30%; background-color: rgba(255, 205, 86, 0.6); border: 1px solid rgb(255, 205, 86); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 20%; background-color: rgba(54, 162, 235, 0.6); border: 1px solid rgb(54, 162, 235); border-bottom: none;"></div>
+                                    <span class="x-label">25.12</span>
+                                </div>
+                                <div class="stacked-group">
+                                    <div class="stack-segment" style="height: 15%; background-color: rgba(255, 99, 132, 0.6); border: 1px solid rgb(255, 99, 132); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 18%; background-color: rgba(255, 205, 86, 0.6); border: 1px solid rgb(255, 205, 86); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 12%; background-color: rgba(54, 162, 235, 0.6); border: 1px solid rgb(54, 162, 235); border-bottom: none;"></div>
+                                    <span class="x-label">26.01</span>
+                                </div>
+                                <div class="stacked-group">
+                                    <div class="stack-segment" style="height: 10%; background-color: rgba(255, 99, 132, 0.6); border: 1px solid rgb(255, 99, 132); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 12%; background-color: rgba(255, 205, 86, 0.6); border: 1px solid rgb(255, 205, 86); border-bottom: none;"></div>
+                                    <div class="stack-segment" style="height: 8%; background-color: rgba(54, 162, 235, 0.6); border: 1px solid rgb(54, 162, 235); border-bottom: none;"></div>
+                                    <span class="x-label">26.02</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart 4: 품목별 불량률 TOP 5 (Chart.js Style) -->
+                <div class="card">
+                    <div class="card-header" style="margin-bottom: 10px;">
+                        <div class="card-title">품목별 누적 불량률 TOP 5</div>
+                    </div>
+                    <ul class="hbar-list">
+                        <li class="hbar-item">
+                            <div class="hbar-header">
+                                <span class="hbar-title">1. B부품 (외장)</span> 
+                                <div class="hbar-value-container">
+                                    <span class="hbar-percentage" style="color: rgb(255, 99, 132);">8.2%</span>
+                                    <span class="hbar-count">(31건)</span>
+                                    <button class="btn-ai-small" style="margin-left: 4px;" onclick="openAIEmail('B부품 (외장)', '8.2%', '31건')">✨ 조치 메일</button>
+                                </div>
+                            </div>
+                            <div class="hbar-bg"><div class="hbar-fill" style="width: 82%; background-color: rgba(255, 99, 132, 0.8);"></div></div>
+                        </li>
+                        <li class="hbar-item">
+                            <div class="hbar-header">
+                                <span class="hbar-title">2. D부품 (외장)</span> 
+                                <div class="hbar-value-container">
+                                    <span class="hbar-percentage" style="color: rgb(255, 159, 64);">7.1%</span>
+                                    <span class="hbar-count">(18건)</span>
+                                </div>
+                            </div>
+                            <div class="hbar-bg"><div class="hbar-fill" style="width: 71%; background-color: rgba(255, 159, 64, 0.8);"></div></div>
+                        </li>
+                        <li class="hbar-item">
+                            <div class="hbar-header">
+                                <span class="hbar-title">3. F부품 (외장)</span> 
+                                <div class="hbar-value-container">
+                                    <span class="hbar-percentage" style="color: rgb(255, 159, 64);">6.4%</span>
+                                    <span class="hbar-count">(14건)</span>
+                                </div>
+                            </div>
+                            <div class="hbar-bg"><div class="hbar-fill" style="width: 64%; background-color: rgba(255, 159, 64, 0.8);"></div></div>
+                        </li>
+                        <li class="hbar-item">
+                            <div class="hbar-header">
+                                <span class="hbar-title">4. A부품 (내장)</span> 
+                                <div class="hbar-value-container">
+                                    <span class="hbar-percentage" style="color: rgb(54, 162, 235);">4.4%</span>
+                                    <span class="hbar-count">(20건)</span>
+                                </div>
+                            </div>
+                            <div class="hbar-bg"><div class="hbar-fill" style="width: 44%; background-color: rgba(54, 162, 235, 0.8);"></div></div>
+                        </li>
+                        <li class="hbar-item">
+                            <div class="hbar-header">
+                                <span class="hbar-title">5. C부품 (내장)</span> 
+                                <div class="hbar-value-container">
+                                    <span class="hbar-percentage" style="color: rgb(54, 162, 235);">2.1%</span>
+                                    <span class="hbar-count">(6건)</span>
+                                </div>
+                            </div>
+                            <div class="hbar-bg"><div class="hbar-fill" style="width: 21%; background-color: rgba(54, 162, 235, 0.8);"></div></div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Table Section -->
+                <div class="table-card">
+                    <div class="table-header-area">
+                        <div class="table-title"><i class="fa-solid fa-list-ul" style="color: #64748b; font-size: 14px;"></i> 조회 기간 품목별 상세 합계 <span style="font-size: 13px; color: #64748b; font-weight: 500; margin-left: 8px;">(Group by Item)</span></div>
+                        <div class="table-actions">
+                            <button class="btn-outline"><i class="fa-solid fa-download"></i> 엑셀 다운로드</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>공장명 <i class="fa-solid fa-sort"></i></th>
+                                    <th class="sorted">품목명 (정렬됨) <i class="fa-solid fa-sort-down"></i></th>
+                                    <th>총 검사 <i class="fa-solid fa-sort"></i></th>
+                                    <th>초품 검사 <i class="fa-solid fa-sort"></i></th>
+                                    <th>중품 검사 <i class="fa-solid fa-sort"></i></th>
+                                    <th>종품 검사 <i class="fa-solid fa-sort"></i></th>
+                                    <th>4M 위반 <i class="fa-solid fa-sort"></i></th>
+                                    <th>불량 건수 <i class="fa-solid fa-sort"></i></th>
+                                    <th>불량률 <i class="fa-solid fa-sort"></i></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="group-start">
+                                    <td class="td-factory">서울 공장</td>
+                                    <td><span class="td-part">A부품 (내장)</span></td>
+                                    <td class="td-number" style="font-weight: 700;">450</td>
+                                    <td class="td-number">150</td>
+                                    <td class="td-number">150</td>
+                                    <td class="td-number">150</td>
+                                    <td class="td-number">4</td>
+                                    <td class="td-number td-alert">20</td>
+                                    <td class="td-number">4.4%</td>
+                                </tr>
+                                <tr class="group-start">
+                                    <td class="td-factory">서울 공장</td>
+                                    <td><span class="td-part">B부품 (외장)</span></td>
+                                    <td class="td-number" style="font-weight: 700;">380</td>
+                                    <td class="td-number">130</td>
+                                    <td class="td-number">125</td>
+                                    <td class="td-number">125</td>
+                                    <td class="td-number td-alert">12</td>
+                                    <td class="td-number td-alert">31</td>
+                                    <td class="td-number td-alert">8.2%</td>
+                                </tr>
+                                <tr class="group-start">
+                                    <td class="td-factory">서울 공장</td>
+                                    <td><span class="td-part">C부품 (내장)</span></td>
+                                    <td class="td-number" style="font-weight: 700;">290</td>
+                                    <td class="td-number">100</td>
+                                    <td class="td-number">95</td>
+                                    <td class="td-number">95</td>
+                                    <td class="td-number">1</td>
+                                    <td class="td-number">6</td>
+                                    <td class="td-number">2.1%</td>
+                                </tr>
+                                <tr class="group-start">
+                                    <td class="td-factory">서울 공장</td>
+                                    <td><span class="td-part">D부품 (외장)</span></td>
+                                    <td class="td-number" style="font-weight: 700;">300</td>
+                                    <td class="td-number">100</td>
+                                    <td class="td-number">100</td>
+                                    <td class="td-number">100</td>
+                                    <td class="td-number td-alert">25</td>
+                                    <td class="td-number td-alert">18</td>
+                                    <td class="td-number td-alert">6.1%</td>
+                                </tr>
+                                <tr class="group-start">
+                                    <td class="td-factory">서울 공장</td>
+                                    <td><span class="td-part">F부품 (외장)</span></td>
+                                    <td class="td-number" style="font-weight: 700;">220</td>
+                                    <td class="td-number">80</td>
+                                    <td class="td-number">70</td>
+                                    <td class="td-number">70</td>
+                                    <td class="td-number td-alert">8</td>
+                                    <td class="td-number td-alert">14</td>
+                                    <td class="td-number td-alert">6.4%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- AI Modal (유지) -->
+<div class="modal-overlay" id="aiModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title" id="aiModalTitle"><i class="fa-solid fa-wand-magic-sparkles" style="color: #8b5cf6;"></i> AI 리포트 생성 중...</div>
+            <button class="close-btn" onclick="closeAIModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" id="aiModalBody">
+            <div class="loading-container" id="aiLoading">
+                <div class="spinner"></div>
+                <div class="loading-text">Gemini AI가 데이터를 분석하고 있습니다...</div>
+            </div>
+            <div id="aiResponseText" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Gemini API Configuration
+    const apiKey = ""; 
+    
+    async function callGeminiAPI(prompt) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: { 
+                parts: [{ text: "당신은 프라코(Plakor) 자동차 부품 공장의 수석 품질 관리(QC) 데이터 분석가입니다. 전문가적이고 명확한 어조로 보고서를 작성하며, 불필요한 인사는 생략하고 핵심 통찰과 조치 사항을 중점적으로 제시합니다. 마크다운 형식으로 작성하세요." }] 
+            }
+        };
+
+        let retries = 5;
+        let delay = 1000;
+
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const result = await response.json();
+                return result.candidates[0].content.parts[0].text;
+            } catch (error) {
+                if (i === retries - 1) {
+                    console.error("Gemini API call failed after retries:", error);
+                    return "죄송합니다. 현재 AI 분석 서버에 접속할 수 없습니다. 잠시 후 다시 시도해 주세요.";
+                }
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; // Exponential backoff
+            }
+        }
+    }
+
+    const aiModal = document.getElementById('aiModal');
+    const aiModalTitle = document.getElementById('aiModalTitle');
+    const aiLoading = document.getElementById('aiLoading');
+    const aiResponseText = document.getElementById('aiResponseText');
+
+    function showModal(title) {
+        aiModalTitle.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles" style="color: #8b5cf6;"></i> ${title}`;
+        aiResponseText.style.display = 'none';
+        aiResponseText.innerHTML = '';
+        aiLoading.style.display = 'flex';
+        aiModal.classList.add('active');
+    }
+
+    function closeAIModal() {
+        aiModal.classList.remove('active');
+    }
+
+    function formatMarkdown(text) {
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+            .replace(/^## (.*$)/gim, '<h3>$1</h3>')
+            .replace(/^- (.*$)/gim, '<ul><li>$1</li></ul>')
+            .replace(/<\/ul>\n<ul>/gim, '')
+            .replace(/\n/g, '<br/>');
+    }
+
+    async function openAIReport() {
+        showModal('AI 통계 데이터 종합 분석');
+        
+        const prompt = `
+다음은 2025.09.01 ~ 2026.02.28 기간 동안 '서울 공장'의 품질검사 통계 요약입니다.
+- 총 검사 건수: 4,250건
+- 총 불량 건수: 210건 (평균 불량률 약 4.9%)
+- 4M 위반(GPS 이탈 등) 건수: (초품 64%, 중품 26%, 종품 10%)
+- 불량률 높은 품목 순위:
+  1위. B부품 (외장) 8.2% (31건 발생)
+  2위. D부품 (외장) 7.1% (18건 발생)
+  3위. F부품 (외장) 6.4% (14건 발생)
+
+이 데이터를 바탕으로 공장장 및 품질 임원에게 보고할 짧은 브리핑 리포트를 작성해 주세요. 
+반드시 다음 구조를 따르세요:
+### 1. 전반적 품질 현황 요약
+### 2. 주요 취약점 분석 (4M 위반 단계 및 불량 부품군 집중)
+### 3. 현장 품질 개선을 위한 Action Item (3가지 권고)
+        `;
+
+        const responseData = await callGeminiAPI(prompt);
+        
+        aiLoading.style.display = 'none';
+        aiResponseText.innerHTML = formatMarkdown(responseData);
+        aiResponseText.style.display = 'block';
+    }
+
+    async function openAIEmail(partName, defectRate, defectCount) {
+        showModal(`${partName} 품질 개선 요청 메일 초안 작성`);
+        
+        const prompt = `
+당신은 서울 공장 본사의 품질 관리 매니저입니다. 
+최근 통계 결과, 해당 공장의 생산 품목 중 '${partName}'의 불량률이 ${defectRate}(총 ${defectCount})로 전체 품목 중 1위를 기록하여 심각한 상황입니다.
+
+이 상황을 바탕으로, 해당 부품 라인을 담당하는 공장 생산팀장에게 보낼 '정밀 품질 점검 및 원인 파악 요청' 이메일 초안을 작성해주세요. 
+메일 양식(제목, 본문, 맺음말)을 갖추어 정중하지만 단호한 어조로 작성하고, 언제까지 피드백(원인 보고서)을 달라는 기한(내주 금요일)을 포함해주세요.
+        `;
+
+        const responseData = await callGeminiAPI(prompt);
+        
+        aiLoading.style.display = 'none';
+        aiResponseText.innerHTML = formatMarkdown(responseData);
+        aiResponseText.style.display = 'block';
+    }
+
+</script>
+
+</body>
+</html>
