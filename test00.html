@@ -3,421 +3,353 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>프라코 초중품관리 어드민 - 통계 분석</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>프라코 품질관리 어드민 대시보드 (Metronic Style)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        metronic: {
+                            bg: '#f5f8fa',
+                            sidebar: '#1e1e2d',
+                            sidebarActive: '#1b1b29',
+                            primary: '#009ef7',
+                            primaryLight: '#f1faff',
+                            textMuted: '#a1a5b7',
+                            borderDashed: '#eff2f5'
+                        }
+                    },
+                    boxShadow: {
+                        'metronic': '0 0 20px 0 rgba(76, 87, 125, 0.02)',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background-color: #e2e8f0; display: grid; place-items: center; min-height: 100vh;
-            font-family: 'Pretendard', sans-serif; color: #334155; padding: 40px 0;
-        }
-
-        .slide-container {
-            width: 1280px; height: 1100px; background-color: #f1f5f9;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            overflow: hidden; display: flex; position: relative;
-        }
-
-        /* LNB (Sidebar) */
-        .sidebar {
-            width: 240px; background-color: #ffffff; border-right: 1px solid #e2e8f0;
-            display: flex; flex-direction: column; z-index: 10;
-        }
-        .logo {
-            height: 70px; display: flex; align-items: center; padding: 0 24px;
-            border-bottom: 1px solid #e2e8f0; font-weight: 800; font-size: 24px; color: #0f172a; letter-spacing: -1px;
-        }
-        .logo span { color: #2563eb; }
-        .menu { list-style: none; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
-        .menu li {
-            padding: 12px 16px; border-radius: 8px; cursor: pointer; font-size: 15px;
-            font-weight: 500; color: #64748b; display: flex; align-items: center; gap: 12px; transition: all 0.2s;
-        }
-        .menu li:hover { background-color: #f8fafc; color: #0f172a; }
-        .menu li.active { background-color: #eff6ff; color: #2563eb; font-weight: 600; }
-        .menu li i { width: 20px; text-align: center; font-size: 16px; }
-
-        /* Main Content */
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* GNB (Header) */
-        .header {
-            height: 70px; background-color: #ffffff; border-bottom: 1px solid #e2e8f0;
-            display: flex; justify-content: space-between; align-items: center; padding: 0 32px; flex-shrink: 0;
-        }
-        .header-title { font-size: 18px; font-weight: 700; color: #0f172a; }
-        .user-profile { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; }
-        .avatar {
-            width: 36px; height: 36px; background-color: #1e293b; color: white;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;
-        }
-
-        /* Content Area */
-        .content-area {
-            padding: 24px 32px; display: flex; flex-direction: column; gap: 20px;
-            height: calc(100% - 70px); overflow-y: auto;
-        }
-
-        /* Filter Section */
-        .filter-card {
-            background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
-            padding: 20px; display: flex; flex-direction: column; gap: 16px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); flex-shrink: 0;
-        }
-        .filter-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
-        .filter-grid { display: flex; gap: 16px; align-items: flex-end; }
-        .filter-group { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-        .filter-group label { font-size: 13px; font-weight: 600; color: #475569; }
-        .filter-group select, .filter-group input {
-            padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px;
-            font-family: inherit; font-size: 14px; color: #334155; outline: none; background-color: #f8fafc;
-        }
-        .filter-group select:focus, .filter-group input:focus { border-color: #2563eb; background-color: #ffffff; }
-        .search-btn {
-            background-color: #1e293b; color: white; border: none; border-radius: 6px;
-            padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; height: 40px;
-            display: flex; align-items: center; gap: 8px; transition: background 0.2s;
-        }
-        .search-btn:hover { background-color: #0f172a; }
-
-        /* Report Info Bar */
-        .report-info {
-            display: flex; justify-content: space-between; align-items: center; 
-            background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 20px;
-        }
-        .report-info span { font-size: 14px; font-weight: 600; color: #1e3a8a; }
-        .report-info .badge { background-color: #2563eb; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-right: 8px; }
-
-        /* Dashboard Grid Layout (4 Fixed Standard Charts) */
-        .dashboard-grid {
-            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto auto; gap: 20px;
-        }
-
-        .card {
-            background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0;
-            padding: 20px; display: flex; flex-direction: column; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-        }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .card-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;}
-        
-        /* Chart Shared */
-        .chart-legend { display: flex; justify-content: flex-end; gap: 12px; font-size: 12px; font-weight: 500; color: #475569; }
-        .chart-legend div { display: flex; align-items: center; gap: 6px; }
-        .legend-box { width: 10px; height: 10px; border-radius: 2px; }
-        .legend-line { width: 16px; height: 3px; border-radius: 2px; }
-        .chart-container { position: relative; width: 100%; height: 180px; }
-
-        /* Common Axes Styling */
-        .chart-area { display: flex; align-items: flex-end; justify-content: space-around; height: 100%; padding: 0 10px 25px 40px; border-bottom: 1px solid #cbd5e1; position: relative; }
-        .y-axis { position: absolute; left: 0; top: 0; bottom: 25px; display: flex; flex-direction: column; justify-content: space-between; font-size: 11px; color: #94a3b8; align-items: flex-end; width: 30px; }
-        .grid-line { position: absolute; left: 40px; right: 0; height: 1px; background-color: #f1f5f9; z-index: 0; pointer-events: none; }
-        .x-label { position: absolute; bottom: -22px; font-size: 11px; color: #64748b; font-weight: 500; text-align: center; width: 100%; }
-
-        /* Chart 1: Monthly Grouped Bar */
-        .bar-group-monthly { display: flex; flex-direction: row; align-items: flex-end; justify-content: center; gap: 4px; height: 100%; width: 40px; z-index: 1; position: relative; }
-        .bar-monthly-total { width: 16px; background-color: #94a3b8; border-radius: 2px 2px 0 0; }
-        .bar-monthly-defect { width: 16px; background-color: #f43f5e; border-radius: 2px 2px 0 0; }
-
-        /* Chart 2: Single Line Chart (SVG) */
-        .svg-line-chart { position: absolute; top: 0; left: 40px; width: calc(100% - 40px); height: calc(100% - 25px); overflow: visible; z-index: 2; }
-        .line-marker { transition: r 0.2s; cursor: pointer; }
-        .line-marker:hover { r: 6; }
-        .x-label-container { display: flex; justify-content: space-around; position: absolute; bottom: 0; left: 40px; width: calc(100% - 40px); }
-        .x-label-container div { flex: 1; text-align: center; position: relative; }
-
-        /* Chart 3: Doughnut */
-        .doughnut-wrapper { display: flex; align-items: center; justify-content: center; height: 100%; gap: 40px; }
-        .doughnut-chart {
-            width: 140px; height: 140px; border-radius: 50%;
-            background: conic-gradient(#cbd5e1 0% 65%, #94a3b8 65% 90%, #64748b 90% 100%);
-            position: relative; display: flex; align-items: center; justify-content: center;
-        }
-        .doughnut-inner { width: 85px; height: 85px; background-color: #ffffff; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .doughnut-inner span { font-size: 11px; color: #64748b; font-weight: 600;}
-        .doughnut-inner strong { font-size: 18px; color: #0f172a; font-weight: 800;}
-        .doughnut-legend { display: flex; flex-direction: column; gap: 12px; }
-        .doughnut-legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; color: #475569;}
-        .doughnut-legend-item strong { margin-left: auto; color: #0f172a; }
-
-        /* Chart 4: H-Bar */
-        .hbar-list { list-style: none; display: flex; flex-direction: column; gap: 16px; margin-top: 5px; }
-        .hbar-item { display: flex; flex-direction: column; gap: 6px; }
-        .hbar-header { display: flex; justify-content: space-between; align-items: flex-end; font-size: 13px; font-weight: 600; color: #334155; }
-        .hbar-bg { width: 100%; height: 8px; background-color: #f1f5f9; border-radius: 4px; overflow: hidden; }
-        .hbar-fill { height: 100%; border-radius: 4px; }
-        .hbar-value { font-size: 14px; font-weight: 700; display: flex; align-items: baseline; gap: 6px; }
-
-        /* Table Section */
-        .table-card { grid-column: 1 / -1; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); }
-        .table-header-area { padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background-color: #fff;}
-        .table-title { font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
-        .table-actions { display: flex; gap: 8px; }
-        .btn-outline { border: 1px solid #cbd5e1; background: white; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 6px;}
-        .btn-outline:hover { background-color: #f8fafc; }
-
-        .table-wrapper { overflow-x: auto; flex: 1; }
-        table { width: 100%; border-collapse: collapse; text-align: center; }
-        thead th { background-color: #f8fafc; border-bottom: 1px solid #cbd5e1; font-size: 13px; padding: 12px 10px; font-weight: 600; color: #475569; cursor: pointer; position: relative;}
-        th.sorted { background-color: #eff6ff; color: #1e3a8a; border-bottom: 2px solid #2563eb; }
-        td { padding: 14px 10px; font-size: 13px; color: #334155; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .td-factory { font-weight: 600; color: #0f172a; }
-        .td-part { display: inline-block; background-color: #f1f5f9; color: #334155; padding: 4px 10px; border-radius: 4px; font-weight: 600; border: 1px solid #e2e8f0;}
-        .td-number { font-variant-numeric: tabular-nums; font-weight: 500; }
-        .td-alert { color: #e11d48; font-weight: 600; }
-        tr.group-start td { border-top: 2px solid #e2e8f0; }
-
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Pretendard', sans-serif; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
+        /* Chart tooltip customization */
+        .chartjs-tooltip { background: rgba(0, 0, 0, 0.8) !important; border-radius: 8px; }
+        /* Scrollbar customization for webkit */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #E4E6EF; border-radius: 4px; }
     </style>
 </head>
-<body>
+<body class="text-gray-800 bg-metronic-bg">
 
-<div class="slide-container" id="slide_statistics">
-    
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo">
-            PLAKOR<span>.</span>
-        </div>
-        <ul class="menu">
-            <li><i class="fa-solid fa-border-all"></i> 대시보드</li>
-            <li><i class="fa-solid fa-clipboard-check"></i> 검사 현황</li>
-            <li><i class="fa-solid fa-triangle-exclamation"></i> 불량 관리</li>
-            <li><i class="fa-solid fa-users"></i> 사용자 관리</li>
-            <li><i class="fa-solid fa-industry"></i> 공장 관리</li>
-            <li><i class="fa-solid fa-box"></i> 품목 관리</li>
-            <li><i class="fa-solid fa-car"></i> 차종 관리</li>
-            <li class="active"><i class="fa-solid fa-chart-line"></i> 통계</li>
-        </ul>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-title">프라코 초중품관리 어드민 - 통계 분석</div>
-            <div class="user-profile">
-                <span>관리자</span>
-                <div class="avatar">A</div>
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar (Metronic Dark Style) -->
+        <aside class="w-64 bg-metronic-sidebar text-[#9899ac] flex flex-col hidden md:flex font-medium">
+            <div class="h-20 flex items-center px-8 text-2xl font-bold text-white tracking-wider">
+                <i data-lucide="shield-check" class="text-metronic-primary mr-3 w-8 h-8"></i> PLAKOR
             </div>
-        </header>
+            <nav class="flex-1 px-4 space-y-1 mt-4">
+                <a href="#" class="flex items-center gap-3 bg-metronic-sidebarActive text-metronic-primary px-4 py-3 rounded-md transition-colors">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> 대시보드
+                </a>
+                <a href="#" class="flex items-center gap-3 hover:text-white px-4 py-3 rounded-md transition-colors">
+                    <i data-lucide="clipboard-list" class="w-5 h-5"></i> 검수현황
+                </a>
+                <a href="#" class="flex items-center gap-3 hover:text-white px-4 py-3 rounded-md transition-colors">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i> 불량관리
+                </a>
+                <a href="#" class="flex items-center gap-3 hover:text-white px-4 py-3 rounded-md transition-colors">
+                    <i data-lucide="database" class="w-5 h-5"></i> 마스터 데이터
+                </a>
+            </nav>
+        </aside>
 
-        <!-- Content Area -->
-        <div class="content-area">
-            
-            <!-- Filter Section -->
-            <div class="filter-card">
-                <div class="filter-title"><i class="fa-solid fa-filter"></i> 통계 검색 조건</div>
-                <div class="filter-grid">
-                    <div class="filter-group">
-                        <label>검색 기간</label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input type="date" value="2025-09-01" style="flex: 1;">
-                            <span style="color: #94a3b8;">~</span>
-                            <input type="date" value="2026-02-28" style="flex: 1;">
-                        </div>
-                    </div>
-                    <div class="filter-group">
-                        <label>공장 (단일선택)</label>
-                        <select>
-                            <option>전체 공장</option>
-                            <option selected>서울 공장</option>
-                            <option>부산 공장</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label>품목 분류</label>
-                        <select>
-                            <option>전체 품목</option>
-                            <option>내장 부품</option>
-                            <option>외장 부품</option>
-                        </select>
-                    </div>
-                    <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i> 데이터 조회</button>
-                </div>
-            </div>
-
-            <div class="report-info">
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto p-8">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8">
                 <div>
-                    <span class="badge">조회 결과</span>
-                    <span>기준 기간: 2025.09.01 ~ 2026.02.28 | 대상: 서울 공장 | 품목: 전체</span>
-                </div>
-                <div style="font-size: 13px; color: #64748b;">총 검사 4,250건 / 불량 210건</div>
-            </div>
-
-            <!-- Dashboard Grid Layout -->
-            <div class="dashboard-grid">
-                
-                <!-- Chart 1: 월별 검사 및 불량 건수 (Fixed Monthly X-axis) -->
-                <div class="card">
-                    <div class="card-header" style="margin-bottom: 10px;">
-                        <div class="card-title">월별 검사 및 불량 건수</div>
-                        <div class="chart-legend">
-                            <div><div class="legend-box" style="background-color: #94a3b8;"></div> 총 건수</div>
-                            <div><div class="legend-box" style="background-color: #f43f5e;"></div> 불량 건수</div>
-                        </div>
-                    </div>
-                    <div class="chart-container" style="height: 160px;">
-                        <div class="chart-area">
-                            <div class="y-axis"><span>1,000</span><span>500</span><span>0</span></div>
-                            <div class="grid-line" style="top: 0%;"></div><div class="grid-line" style="top: 50%;"></div>
-                            
-                            <!-- Fixed 6 Columns (Grouping backend data by Month) -->
-                            <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 40%;"></div><div class="bar-monthly-defect" style="height: 8%;"></div><span class="x-label">25.09</span></div>
-                            <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 55%;"></div><div class="bar-monthly-defect" style="height: 12%;"></div><span class="x-label">25.10</span></div>
-                            <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 45%;"></div><div class="bar-monthly-defect" style="height: 10%;"></div><span class="x-label">25.11</span></div>
-                            <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 85%;"></div><div class="bar-monthly-defect" style="height: 20%;"></div><span class="x-label">25.12</span></div>
-                            <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 60%;"></div><div class="bar-monthly-defect" style="height: 15%;"></div><span class="x-label">26.01</span></div>
-                            <div class="bar-group-monthly"><div class="bar-monthly-total" style="height: 75%;"></div><div class="bar-monthly-defect" style="height: 14%;"></div><span class="x-label">26.02</span></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chart 2: 월별 불량률 추이 (Single Line Chart - Easy Dev) -->
-                <div class="card">
-                    <div class="card-header" style="margin-bottom: 10px;">
-                        <div class="card-title">월별 통합 불량률 추이 (%)</div>
-                        <div class="chart-legend">
-                            <div><div class="legend-line" style="background-color: #2563eb;"></div> 불량률</div>
-                        </div>
-                    </div>
-                    <div class="chart-container" style="height: 160px;">
-                        <div class="chart-area" style="padding: 0 0 25px 40px; border-bottom: none;">
-                            <div class="y-axis"><span>10</span><span>5</span><span>0</span></div>
-                            <div class="grid-line" style="top: 0%;"></div><div class="grid-line" style="top: 50%;"></div><div class="grid-line" style="top: 100%; background-color: #cbd5e1;"></div>
-                            
-                            <!-- Single Line Chart for easy dynamic rendering -->
-                            <svg class="svg-line-chart" viewBox="0 0 520 135" preserveAspectRatio="none">
-                                <polyline points="40,80 128,60 216,90 304,30 392,50 480,40" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                                <circle cx="40" cy="80" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2" class="line-marker" />
-                                <circle cx="128" cy="60" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2" class="line-marker" />
-                                <circle cx="216" cy="90" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2" class="line-marker" />
-                                <circle cx="304" cy="30" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2" class="line-marker" />
-                                <circle cx="392" cy="50" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2" class="line-marker" />
-                                <circle cx="480" cy="40" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2" class="line-marker" />
-                            </svg>
-                            
-                            <!-- Fixed Monthly Labels matching the bar chart -->
-                            <div class="x-label-container">
-                                <div><span class="x-label">25.09</span></div><div><span class="x-label">25.10</span></div><div><span class="x-label">25.11</span></div>
-                                <div><span class="x-label">25.12</span></div><div><span class="x-label">26.01</span></div><div><span class="x-label">26.02</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chart 3: 기간 내 4M 위반 단계별 비율 (Simple Doughnut instead of Time-series Stacked) -->
-                <div class="card">
-                    <div class="card-header" style="margin-bottom: 10px;">
-                        <div class="card-title">기간 내 4M 위반 단계별 비율</div>
-                    </div>
-                    <div class="doughnut-wrapper">
-                        <div class="doughnut-chart">
-                            <div class="doughnut-inner">
-                                <span>총 위반</span>
-                                <strong>124건</strong>
-                            </div>
-                        </div>
-                        <div class="doughnut-legend">
-                            <div class="doughnut-legend-item"><div class="legend-box" style="background-color: #cbd5e1;"></div> 초품 단계 <strong>80건 (64%)</strong></div>
-                            <div class="doughnut-legend-item"><div class="legend-box" style="background-color: #94a3b8;"></div> 중품 단계 <strong>32건 (26%)</strong></div>
-                            <div class="doughnut-legend-item"><div class="legend-box" style="background-color: #64748b;"></div> 종품 단계 <strong>12건 (10%)</strong></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chart 4: 품목별 불량률 순위 (Top 5 H-Bar) -->
-                <div class="card">
-                    <div class="card-header" style="margin-bottom: 10px;">
-                        <div class="card-title">기간 내 품목별 불량률 순위</div>
-                    </div>
-                    <ul class="hbar-list">
-                        <li class="hbar-item">
-                            <div class="hbar-header"><span>1. B부품 (외장)</span> <span class="hbar-value" style="color: #e11d48;">8.2% <span style="font-size: 11px; color: #64748b; font-weight: 500;">(31건)</span></span></div>
-                            <div class="hbar-bg"><div class="hbar-fill" style="width: 82%; background-color: #f43f5e;"></div></div>
-                        </li>
-                        <li class="hbar-item">
-                            <div class="hbar-header"><span>2. D부품 (외장)</span> <span class="hbar-value" style="color: #f59e0b;">6.1% <span style="font-size: 11px; color: #64748b; font-weight: 500;">(18건)</span></span></div>
-                            <div class="hbar-bg"><div class="hbar-fill" style="width: 61%; background-color: #fbbf24;"></div></div>
-                        </li>
-                        <li class="hbar-item">
-                            <div class="hbar-header"><span>3. A부품 (내장)</span> <span class="hbar-value" style="color: #3b82f6;">4.4% <span style="font-size: 11px; color: #64748b; font-weight: 500;">(20건)</span></span></div>
-                            <div class="hbar-bg"><div class="hbar-fill" style="width: 44%; background-color: #60a5fa;"></div></div>
-                        </li>
-                        <li class="hbar-item">
-                            <div class="hbar-header"><span>4. C부품 (내장)</span> <span class="hbar-value" style="color: #3b82f6;">2.1% <span style="font-size: 11px; color: #64748b; font-weight: 500;">(6건)</span></span></div>
-                            <div class="hbar-bg"><div class="hbar-fill" style="width: 21%; background-color: #60a5fa;"></div></div>
-                        </li>
+                    <h1 class="text-2xl font-bold text-gray-900">대시보드</h1>
+                    <ul class="flex items-center gap-2 text-sm text-metronic-textMuted mt-2 font-medium">
+                        <li>Home</li>
+                        <li><span class="w-1 h-1 bg-gray-300 rounded-full inline-block"></span></li>
+                        <li>품질관리</li>
+                        <li><span class="w-1 h-1 bg-gray-300 rounded-full inline-block"></span></li>
+                        <li class="text-gray-600">초중종품 지표</li>
                     </ul>
                 </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-medium text-metronic-textMuted">기준일: 2026-02-24</span>
+                    <button class="bg-metronic-primary hover:bg-blue-600 text-white px-4 py-2.5 rounded-md text-sm font-semibold shadow-sm flex items-center gap-2 transition-colors">
+                        <i data-lucide="calendar" class="w-4 h-4"></i> 기간 설정
+                    </button>
+                </div>
+            </header>
 
-                <!-- Table Section -->
-                <div class="table-card">
-                    <div class="table-header-area">
-                        <div class="table-title"><i class="fa-solid fa-list-ul" style="color: #64748b; font-size: 14px;"></i> 조회 기간 품목별 상세 합계 <span style="font-size: 13px; color: #64748b; font-weight: 500; margin-left: 8px;">(Group by Item)</span></div>
-                        <div class="table-actions">
-                            <button class="btn-outline"><i class="fa-solid fa-download"></i> 엑셀 다운로드</button>
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- 1. 검사 진행 현황 (세로 막대) -->
+                <div class="bg-white rounded-xl shadow-metronic border-0">
+                    <div class="px-7 py-5 border-b border-dashed border-metronic-borderDashed flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">단계별 검사 현황</h3>
+                            <span class="text-xs font-medium text-metronic-textMuted mt-1 block">전체 대비 초/중/종품 처리 볼륨</span>
                         </div>
                     </div>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>공장명 <i class="fa-solid fa-sort"></i></th>
-                                    <th class="sorted">품목명 (정렬됨) <i class="fa-solid fa-sort-down"></i></th>
-                                    <th>총 검사 <i class="fa-solid fa-sort"></i></th>
-                                    <th>초품 검사 <i class="fa-solid fa-sort"></i></th>
-                                    <th>중품 검사 <i class="fa-solid fa-sort"></i></th>
-                                    <th>종품 검사 <i class="fa-solid fa-sort"></i></th>
-                                    <th>4M 위반 <i class="fa-solid fa-sort"></i></th>
-                                    <th>불량 건수 <i class="fa-solid fa-sort"></i></th>
-                                    <th>불량률 <i class="fa-solid fa-sort"></i></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr class="group-start">
-                                    <td class="td-factory">서울 공장</td>
-                                    <td><span class="td-part">A부품 (내장)</span></td>
-                                    <td class="td-number" style="font-weight: 700;">450</td>
-                                    <td class="td-number">150</td>
-                                    <td class="td-number">150</td>
-                                    <td class="td-number">150</td>
-                                    <td class="td-number">4</td>
-                                    <td class="td-number td-alert">20</td>
-                                    <td class="td-number">4.4%</td>
-                                </tr>
-                                <tr class="group-start">
-                                    <td class="td-factory">서울 공장</td>
-                                    <td><span class="td-part">B부품 (외장)</span></td>
-                                    <td class="td-number" style="font-weight: 700;">380</td>
-                                    <td class="td-number">130</td>
-                                    <td class="td-number">125</td>
-                                    <td class="td-number">125</td>
-                                    <td class="td-number td-alert">12</td>
-                                    <td class="td-number td-alert">31</td>
-                                    <td class="td-number td-alert">8.2%</td>
-                                </tr>
-                                <tr class="group-start">
-                                    <td class="td-factory">서울 공장</td>
-                                    <td><span class="td-part">C부품 (내장)</span></td>
-                                    <td class="td-number" style="font-weight: 700;">290</td>
-                                    <td class="td-number">100</td>
-                                    <td class="td-number">95</td>
-                                    <td class="td-number">95</td>
-                                    <td class="td-number">1</td>
-                                    <td class="td-number">6</td>
-                                    <td class="td-number">2.1%</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="p-7">
+                        <div class="chart-container">
+                            <canvas id="inspectionVolumeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. 검사 단계별 4M 위반 비율 (도넛 차트 + 중앙 총합) -->
+                <div class="bg-white rounded-xl shadow-metronic border-0">
+                    <div class="px-7 py-5 border-b border-dashed border-metronic-borderDashed flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">검사 단계별 4M 위반 비율</h3>
+                            <span class="text-xs font-medium text-metronic-textMuted mt-1 block">초/중/종품 단계별 위반 건수 비중 및 총 누적 건수</span>
+                        </div>
+                    </div>
+                    <div class="p-7">
+                        <div class="chart-container flex items-center justify-center">
+                             <canvas id="violationStageDonutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. 협력사 분포 (영남/중부 도넛 차트) -->
+                <div class="bg-white rounded-xl shadow-metronic border-0">
+                    <div class="px-7 py-5 border-b border-dashed border-metronic-borderDashed flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">권역별 협력사 가동 현황</h3>
+                            <span class="text-xs font-medium text-metronic-textMuted mt-1 block">영남권 및 중부권 협력사 참여 현황</span>
+                        </div>
+                    </div>
+                    <div class="p-7">
+                        <div class="chart-container">
+                            <canvas id="partnerDonutChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. 부품별 검사/불량 건수 (그룹 막대 차트) -->
+                <div class="bg-white rounded-xl shadow-metronic border-0">
+                    <div class="px-7 py-5 border-b border-dashed border-metronic-borderDashed flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-800">부품별 검사 및 불량 현황</h3>
+                            <span class="text-xs font-medium text-metronic-textMuted mt-1 block">내장/외장 부품별 검사 건수 및 불량 발생 건수</span>
+                        </div>
+                    </div>
+                    <div class="p-7">
+                        <div class="chart-container">
+                            <canvas id="partDefectGroupedChart"></canvas>
+                        </div>
                     </div>
                 </div>
 
             </div>
-        </div>
-    </main>
-</div>
+        </main>
+    </div>
 
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Chart.js 공식 문서 기본 색상 팔레트
+        const CHART_COLORS = {
+            red: { bg: 'rgba(255, 99, 132, 0.5)', border: 'rgb(255, 99, 132)' },
+            blue: { bg: 'rgba(54, 162, 235, 0.5)', border: 'rgb(54, 162, 235)' },
+            yellow: { bg: 'rgba(255, 205, 86, 0.5)', border: 'rgb(255, 205, 86)' },
+            green: { bg: 'rgba(75, 192, 192, 0.5)', border: 'rgb(75, 192, 192)' },
+            purple: { bg: 'rgba(153, 102, 255, 0.5)', border: 'rgb(153, 102, 255)' },
+            grey: { bg: 'rgba(201, 203, 207, 0.5)', border: 'rgb(201, 203, 207)' }
+        };
+
+        // Chart Global defaults
+        Chart.defaults.font.family = "'Pretendard', sans-serif";
+        Chart.defaults.color = '#a1a5b7';
+        Chart.defaults.plugins.tooltip.padding = 12;
+        Chart.defaults.plugins.tooltip.backgroundColor = '#1e1e2d';
+        Chart.defaults.plugins.tooltip.titleFont = { size: 13, weight: 'bold' };
+        
+        const gridOptions = { color: '#eff2f5', drawBorder: false, borderDash: [5, 5] };
+
+        // 1. 단계별 검사 현황 (세로 막대)
+        const ctx1 = document.getElementById('inspectionVolumeChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['총 검사', '초품 검사', '중품 검사', '종품 검사'],
+                datasets: [{
+                    label: '검사 건수',
+                    data: [1234, 520, 480, 234],
+                    backgroundColor: [CHART_COLORS.grey.bg, CHART_COLORS.blue.bg, CHART_COLORS.green.bg, CHART_COLORS.purple.bg],
+                    borderColor: [CHART_COLORS.grey.border, CHART_COLORS.blue.border, CHART_COLORS.green.border, CHART_COLORS.purple.border],
+                    borderWidth: 1, borderRadius: 4, barPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: gridOptions },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Custom Plugin for Donut Chart Center Text (Dynamic Reusable)
+        const donutCenterText = {
+            id: 'donutCenterText',
+            beforeDraw: function(chart) {
+                if (chart.config.type !== 'doughnut') return;
+                var width = chart.width, height = chart.height, ctx = chart.ctx;
+                ctx.restore();
+                
+                var total = chart.config.data.centerNumber;
+                var labelText = chart.config.data.centerLabel;
+                
+                var fontSize1 = (height / 110).toFixed(2);
+                ctx.font = "bold " + fontSize1 + "em Pretendard";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "#3f4254"; 
+                var text1 = total, textX1 = Math.round((width - ctx.measureText(text1).width) / 2), textY1 = height / 2 - 10;
+                ctx.fillText(text1, textX1, textY1);
+                
+                var fontSize2 = (height / 250).toFixed(2);
+                ctx.font = "600 " + fontSize2 + "em Pretendard";
+                ctx.fillStyle = "#a1a5b7"; 
+                var text2 = labelText, textX2 = Math.round((width - ctx.measureText(text2).width) / 2), textY2 = height / 2 + 20;
+                ctx.fillText(text2, textX2, textY2);
+                
+                ctx.save();
+            }
+        };
+
+        // 2. 검사 단계별 4M 위반 비율 (도넛 차트 - 중앙 총합 표시)
+        const ctx2 = document.getElementById('violationStageDonutChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['초품 위반', '중품 위반', '종품 위반'],
+                datasets: [{
+                    data: [25, 12, 5], // 예시 건수 데이터 (총 42건)
+                    // 1번 차트의 초/중/종품 색상과 정확히 동기화하여 인지 부하 감소
+                    backgroundColor: [CHART_COLORS.blue.bg, CHART_COLORS.green.bg, CHART_COLORS.purple.bg],
+                    borderColor: [CHART_COLORS.blue.border, CHART_COLORS.green.border, CHART_COLORS.purple.border],
+                    borderWidth: 1,
+                    hoverOffset: 4
+                }],
+                centerNumber: 42,
+                centerLabel: "총 위반건수"
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                layout: { padding: 10 },
+                plugins: {
+                    legend: { 
+                        position: 'right', // 공간 활용을 위해 우측 배치
+                        labels: { usePointStyle: true, boxWidth: 8, padding: 20 } 
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) { 
+                                // 툴팁에 건수와 비율(%)을 동시에 표시
+                                let total = context.chart._metasets[context.datasetIndex].total;
+                                let value = context.raw;
+                                let percentage = Math.round((value / total) * 100);
+                                return ' ' + context.label + ': ' + value + '건 (' + percentage + '%)'; 
+                            }
+                        }
+                    }
+                }
+            },
+            plugins: [donutCenterText]
+        });
+
+        // 3. 권역별 협력사 분포 (영남권 / 중부권 2분할 도넛 차트)
+        const ctx3 = document.getElementById('partnerDonutChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'doughnut',
+            data: {
+                labels: ['영남권', '중부권'],
+                datasets: [{
+                    data: [52, 33],
+                    backgroundColor: [CHART_COLORS.blue.bg, CHART_COLORS.green.bg],
+                    borderColor: [CHART_COLORS.blue.border, CHART_COLORS.green.border],
+                    borderWidth: 1,
+                    hoverOffset: 4
+                }],
+                centerNumber: 85,
+                centerLabel: "총 협력사"
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false, cutout: '75%',
+                plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 20 } } }
+            },
+            plugins: [donutCenterText]
+        });
+
+        // 4. 부품별 검사/불량 현황 (그룹 막대 차트 - 이중 Y축 적용)
+        const ctx4 = document.getElementById('partDefectGroupedChart').getContext('2d');
+        new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: ['내장 부품', '외장 부품'],
+                datasets: [
+                    {
+                        label: '검사 건수 (건)',
+                        data: [850, 620],
+                        backgroundColor: CHART_COLORS.blue.bg,
+                        borderColor: CHART_COLORS.blue.border,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.5,
+                        yAxisID: 'y' // 왼쪽 축 (단위가 큼)
+                    },
+                    {
+                        label: '불량 건수 (건)',
+                        data: [21, 25], // 불량 건수 임의 데이터
+                        backgroundColor: CHART_COLORS.red.bg,
+                        borderColor: CHART_COLORS.red.border,
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        barPercentage: 0.6,
+                        categoryPercentage: 0.5,
+                        yAxisID: 'y1' // 오른쪽 축 (단위가 작음)
+                    }
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear', display: true, position: 'left',
+                        title: { display: true, text: '검사 건수', font: {size: 11, weight: 'bold'}, color: '#a1a5b7' },
+                        grid: gridOptions,
+                        suggestedMax: 1000
+                    },
+                    y1: {
+                        type: 'linear', display: true, position: 'right',
+                        title: { display: true, text: '불량 건수', font: {size: 11, weight: 'bold'}, color: '#a1a5b7' },
+                        grid: { display: false },
+                        suggestedMax: 40 // 오른쪽 축 스케일 조정으로 불량 건수 막대가 잘 보이도록 처리
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>
